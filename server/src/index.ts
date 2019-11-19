@@ -4,8 +4,7 @@ import * as cors from 'cors';
 import * as helmet from 'helmet';
 import * as morgan from 'morgan';
 
-// Set up express and some defaults
-
+// Set up express and some default handlers
 const app = express();
 app.use(helmet());
 app.use(json());
