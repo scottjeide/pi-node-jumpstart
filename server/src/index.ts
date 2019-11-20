@@ -5,11 +5,16 @@ import * as helmet from 'helmet';
 import * as morgan from 'morgan';
 
 // Set up express and some default handlers
-const app = express();
-app.use(helmet());
-app.use(json());
-app.use(cors());
-app.use(morgan('combined'));
+const expressApp = express()
+  .use(helmet())
+  .use(json())
+  .use(cors())
+  .use(morgan('combined'));
+
+// get socket.io ready
+const expressHttpServer = require('http').createServer(expressApp);
+const socketIo = require('socket.io')(expressHttpServer);
+
 
 
 
@@ -50,7 +55,7 @@ const schema = {
 
 // Set up a get handler for each of the endpoints
 for(const endpoint in schema) {
-  app.get('/' + endpoint, (req, res) => {
+  expressApp.get('/' + endpoint, (req, res) => {
     res.send(schema[endpoint].db);
   });
   
@@ -60,11 +65,29 @@ for(const endpoint in schema) {
   */
 }
 
+// set up the socket handler
+socketIo.on('connection', function(socket){
+  console.log('Got new client connection');
 
+  socket.on('clientMessage', function(msg){
+    console.log('Got client message: ' + JSON.stringify(msg));
+  });
 
-  
-// starting the server
-app.listen(3001, () => {
-  console.log('listening on port 3001');
+  socket.on('disconnect', function(){
+    console.log('client disconnected');
+  });
 });
 
+// broadcast a message every few seconds just to see if it's working
+let heartbeatCount = 0;
+setInterval(() => {
+  socketIo.emit('heartbeat', {count: heartbeatCount++});
+}, 3000);
+
+
+
+// start listening for client connections
+expressHttpServer.listen(3001, () => {
+  console.log('listening on port 3001');
+});
+  
