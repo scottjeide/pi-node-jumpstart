@@ -1,5 +1,5 @@
 import commandLine = require('commander');
-const restClient = require('axios').default;
+const fetch = require('node-fetch');
  
 
 
@@ -15,21 +15,9 @@ const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
 console.log(`Connecting to: ${serverRootUrl}`);
 
 
-const apiClient = restClient.create({
-  baseURL: serverRootUrl,
-  timeout: 1000
-  // can set up headers here as well
-});
-
-
-apiClient.get('/data')
-.then(function (response) {
-  console.log(response.data);
-  console.log(response.status);
-  console.log(response.statusText);
-  console.log(response.headers);
-  console.log(response.config);
-});
+fetch(`${serverRootUrl}/data`)
+  .then(res => res.text())
+  .then(body => console.log(body));
 
 
 
