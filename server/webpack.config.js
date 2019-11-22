@@ -17,7 +17,7 @@ module.exports = {
     new WebpackShellPlugin({
       onBuildEnd: ['npm run run:dev']
     })
-  ],  
+  ],
   resolve: {
     extensions: ['.ts', '.js'],
   },
@@ -32,4 +32,4 @@ module.exports = {
     ]
   },
   watch: NODE_ENV === 'development'
-}
+};

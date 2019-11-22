@@ -9,7 +9,8 @@ const expressApp = express()
   .use(helmet())
   .use(json())
   .use(cors())
-  .use(morgan('combined'));
+  .use(morgan('combined'))
+  .use(express.static('www'));
 
 // get socket.io ready
 const expressHttpServer = require('http').createServer(expressApp);
@@ -45,12 +46,13 @@ const schema = {
 
     // temp 'db'
     db: [{run: false, status:''}]
-    
+
   }
 
 
-  
-}
+
+};
+
 
 
 // Set up a get handler for each of the endpoints
@@ -58,7 +60,7 @@ for(const endpoint in schema) {
   expressApp.get('/' + endpoint, (req, res) => {
     res.send(schema[endpoint].db);
   });
-  
+
   /*
   app.put('/' + endpoint, (req, res) => {
   });
@@ -90,4 +92,4 @@ setInterval(() => {
 expressHttpServer.listen(3001, () => {
   console.log('listening on port 3001');
 });
-  
+
