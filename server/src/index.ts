@@ -73,6 +73,12 @@ socketIo.on('connection', function(socket){
 
   socket.on('clientMessage', function(msg){
     console.log('Got client message: ' + JSON.stringify(msg));
+
+    // broadcast it back out to everyone (including the original sender)
+    socketIo.emit('clientMessage', {emit: true, msg: msg});
+
+    // this version will broadcast back to everyone _except_ for the original sender
+    //socket.broadcast.emit('clientMessage', {broadcast: true, msg: msg});
   });
 
   socket.on('disconnect', function(){
