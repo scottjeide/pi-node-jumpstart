@@ -38,7 +38,11 @@ setInterval(() => {
 
 socket.on('heartbeat', function(data) {
   console.log('received heartbeat: ' + JSON.stringify(data));
-});  
+});
+
+socket.on('clientMessage', function(data) {
+  console.log('received clientMessage: ' + JSON.stringify(data));
+});
 
 socket.on('disconnect', function() {
   console.log('disconnected');
