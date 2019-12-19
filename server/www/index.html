@@ -52,8 +52,7 @@
         </v-row>
 
         <v-row align="center" justify="center">
-          <line-chart :chart-data="datacollection"></line-chart>
-          <button class="button is-primary" @click="fillData()">Randomize</button>
+          <line-chart :chart-data="chartData"></line-chart>
         </v-row>
 
       </v-container>
@@ -131,11 +130,9 @@
       data: () => ({
         drawer: null,
         lastMessage: 'Hi there',
-        
-        labels: [],
-        data: [],
 
-        datacollection: {
+        // this is bound to the chart above in the html line-chart element
+        chartData: {
           labels: [],
           datasets: [
             {
@@ -150,69 +147,12 @@
         this.$vuetify.theme.dark = true;
       },
       methods: {
-        addData(label, value) {
-          app.datacollection.labels.push(label);
-          app.datacollection.datasets[0].data.push(value);
-          app.datacollection = {...app.datacollection}
+        addData: (label, value) => {
+          app.chartData.labels.push(label);
+          app.chartData.datasets[0].data.push(value);
+          // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
+          app.chartData = {...app.chartData}
         },
-        fillData () {
-
-          /*
-          // try the grab & reassign trick. Doesn't work either
-          const newData = app.datacollection;
-          newData.labels.push('hi');
-          newData.datasets[0].data.push(app.getRandomInt());
-          app.datacollection = newData;
-          */
-
-          // this works and seems cleaner. 
-          app.datacollection.labels.push('hi');
-          app.datacollection.datasets[0].data.push(app.getRandomInt());
-          app.datacollection = {...app.datacollection};
-          
-          /*
-          // what if I directly manipulate the values? Does not. Makes sense if it's just watching datacollection for property change notifications
-          app.datacollection.labels.push('hi');
-          app.datacollection.datasets[0].data.push(app.getRandomInt());
-          */
-
-
-          /* this works! Just need to specify app. rather than this based on the context
-          app.labels.push('hi');
-          app.data.push(app.getRandomInt());
-          app.datacollection = {
-            labels: app.labels,
-            datasets: [
-              {
-                label: 'Data One',
-                backgroundColor: '#f87979',
-                data: app.data
-              }
-            ]
-          }
-          */
-          /*
-          this.datacollection.labels.push('hi');
-          this.datacollection.datasets[0].data.push(this.getRandomInt());
-          */
-
-          /* this works, is it because it replaces datacollection with a brand new object each time? Seems like it.
-           Try keeping an array of labels and an array of data, and reassign each time.
-          this.datacollection = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-              {
-                label: 'Data One',
-                backgroundColor: '#f87979',
-                data: [this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt()]
-              }
-            ]
-          }
-          */
-        },
-        getRandomInt () {
-          return Math.floor(Math.random() * (50 - 5 + 1)) + 5              
-        }
       }
     });
 
