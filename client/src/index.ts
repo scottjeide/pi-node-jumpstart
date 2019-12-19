@@ -33,7 +33,7 @@ socket.on('connect', function() {
 let heartbeatCount = 0;
 setInterval(() => {
   console.log('sending message to server');
-  socket.emit('clientMessage', {client: true, count: heartbeatCount++});
+  socket.emit('clientMessage', {client: true, count: heartbeatCount++, time: new Date()});
 }, 3000);
 
 socket.on('heartbeat', function(data) {
