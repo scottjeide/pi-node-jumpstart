@@ -5,6 +5,15 @@
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+  <style>
+    .container {
+      width: 700px ;
+      margin-left: auto ;
+      margin-right: auto ;
+      padding-top: 10%;
+    }
+  </style>
 </head>
 <body>
 <div id="app">
@@ -47,43 +56,20 @@
         class="fill-height"
         fluid
       >
-        <span>{{lastMessage}}</span>
+
 
         <v-row
           align="center"
           justify="center"
         >
-          <v-col class="shrink">
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  :href="source"
-                  icon
-                  large
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-code-tags</v-icon>
-                </v-btn>
-              </template>
-              <span>Source</span>
-            </v-tooltip>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  large
-                  href="https://codepen.io/johnjleider/pen/bXNzZL"
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-codepen</v-icon>
-                </v-btn>
-              </template>
-              <span>Codepen</span>
-            </v-tooltip>
-          </v-col>
+          {{lastMessage}}
         </v-row>
+
+        <v-row>
+          <chartjs-line :labels="labels" :data="dataset" :bind="true"></chartjs-line>
+
+        </v-row>
+
       </v-container>
     </v-content>
 
@@ -96,7 +82,12 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://unpkg.com/hchs-vue-charts@1.2.8/dist/vue-charts.min.js"></script>
+<!-- <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script> -->
 <script>
+
+  Vue.use(VueCharts);
 
     const app = new Vue({
         el: '#app',
@@ -106,7 +97,10 @@
         },
         data: () => ({
             drawer: null,
-            lastMessage: 'Hi there'
+            lastMessage: 'Hi there',
+            labels: [],
+            dataset: []
+
         }),
         created () {
             this.$vuetify.theme.dark = true
@@ -120,6 +114,8 @@
         socket.on('clientMessage', function(data) {
             console.log('received clientMessage: ' + JSON.stringify(data));
             app.lastMessage = JSON.stringify(data);
+            app.labels.push(data.msg.time);
+            app.dataset.push(data.msg.count);
         });
 
         socket.on('heartbeat', function(data) {
