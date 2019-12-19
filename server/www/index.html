@@ -18,11 +18,7 @@
 <body>
 <div id="app">
   <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-    >
+    <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <v-list-item link>
           <v-list-item-action>
@@ -43,31 +39,20 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      app
-      clipped-left
-    >
+    <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Application</v-toolbar-title>
     </v-app-bar>
 
     <v-content>
-      <v-container
-        class="fill-height"
-        fluid
-      >
+      <v-container class="fill-height" fluid>
 
-
-        <v-row
-          align="center"
-          justify="center"
-        >
+        <v-row align="center" justify="center">
           {{lastMessage}}
         </v-row>
 
-        <v-row>
-          <chartjs-line :labels="labels" :data="dataset" :bind="true"></chartjs-line>
-
+        <v-row align="center" justify="center">
+          <line-chart></line-chart>
         </v-row>
 
       </v-container>
@@ -82,12 +67,77 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-<script src="https://unpkg.com/hchs-vue-charts@1.2.8/dist/vue-charts.min.js"></script>
-<!-- <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script> -->
+<script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+
 <script>
 
-  Vue.use(VueCharts);
+/*
+    Vue.component('reactive', {
+        extends: VueChartJs.Line,
+        mixins: [VueChartJs.mixins.reactiveProp],
+        data: function () {
+            return {
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            },
+                            gridLines: {
+                                display: true
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            },
+                            gridLines: {
+                                display: false
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: true,
+                        mode: 'single',
+                        callbacks: {
+                            label: function(tooltipItems, data) {
+                                return '$' + tooltipItems.yLabel;
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    height: 200
+                }
+            }
+        },
+        mounted () {
+            // this.chartData is created in the mixin
+            this.renderChart(this.chartData, this.options)
+        }
+    })
+    */
+
+    Vue.component('line-chart', {
+      extends: VueChartJs.Line,
+      mounted () {
+        this.renderChart({
+          labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+          datasets: [
+            {
+              label: 'Data One',
+              backgroundColor: '#f87979',
+              data: [40, 39, 10, 40, 39, 80, 40]
+            }
+          ]
+        }, {responsive: true, maintainAspectRatio: false})
+      }
+    })
 
     const app = new Vue({
         el: '#app',
