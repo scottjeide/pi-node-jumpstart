@@ -52,7 +52,8 @@
         </v-row>
 
         <v-row align="center" justify="center">
-          <line-chart></line-chart>
+          <line-chart :chart-data="datacollection"></line-chart>
+          <button class="button is-primary" @click="fillData()">Randomize</button>
         </v-row>
 
       </v-container>
@@ -73,8 +74,7 @@
 
 <script>
 
-/*
-    Vue.component('reactive', {
+    Vue.component('line-chart', {
         extends: VueChartJs.Line,
         mixins: [VueChartJs.mixins.reactiveProp],
         data: function () {
@@ -117,45 +117,105 @@
             }
         },
         mounted () {
-            // this.chartData is created in the mixin
             this.renderChart(this.chartData, this.options)
         }
     })
-    */
 
-    Vue.component('line-chart', {
-      extends: VueChartJs.Line,
-      mounted () {
-        this.renderChart({
-          labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-          datasets: [
-            {
-              label: 'Data One',
-              backgroundColor: '#f87979',
-              data: [40, 39, 10, 40, 39, 80, 40]
-            }
-          ]
-        }, {responsive: true, maintainAspectRatio: false})
-      }
-    })
 
     const app = new Vue({
-        el: '#app',
-        vuetify: new Vuetify(),
-        props: {
-            source: String,
-        },
-        data: () => ({
-            drawer: null,
-            lastMessage: 'Hi there',
-            labels: [],
-            dataset: []
+      el: '#app',
+      vuetify: new Vuetify(),
+      props: {
+        source: String,
+      },
+      data: () => ({
+        drawer: null,
+        lastMessage: 'Hi there',
+        
+        labels: [],
+        data: [],
 
-        }),
-        created () {
-            this.$vuetify.theme.dark = true
+        datacollection: {
+          labels: [],
+          datasets: [
+            {
+              label: 'One',
+              backgroundColor: '#f87979',
+              data: []
+            }
+          ]
         },
+      }),
+      created () {
+        this.$vuetify.theme.dark = true;
+      },
+      methods: {
+        addData(label, value) {
+          app.datacollection.labels.push(label);
+          app.datacollection.datasets[0].data.push(value);
+          app.datacollection = {...app.datacollection}
+        },
+        fillData () {
+
+          /*
+          // try the grab & reassign trick. Doesn't work either
+          const newData = app.datacollection;
+          newData.labels.push('hi');
+          newData.datasets[0].data.push(app.getRandomInt());
+          app.datacollection = newData;
+          */
+
+          // this works and seems cleaner. 
+          app.datacollection.labels.push('hi');
+          app.datacollection.datasets[0].data.push(app.getRandomInt());
+          app.datacollection = {...app.datacollection};
+          
+          /*
+          // what if I directly manipulate the values? Does not. Makes sense if it's just watching datacollection for property change notifications
+          app.datacollection.labels.push('hi');
+          app.datacollection.datasets[0].data.push(app.getRandomInt());
+          */
+
+
+          /* this works! Just need to specify app. rather than this based on the context
+          app.labels.push('hi');
+          app.data.push(app.getRandomInt());
+          app.datacollection = {
+            labels: app.labels,
+            datasets: [
+              {
+                label: 'Data One',
+                backgroundColor: '#f87979',
+                data: app.data
+              }
+            ]
+          }
+          */
+          /*
+          this.datacollection.labels.push('hi');
+          this.datacollection.datasets[0].data.push(this.getRandomInt());
+          */
+
+          /* this works, is it because it replaces datacollection with a brand new object each time? Seems like it.
+           Try keeping an array of labels and an array of data, and reassign each time.
+          this.datacollection = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [
+              {
+                label: 'Data One',
+                backgroundColor: '#f87979',
+                data: [this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt()]
+              }
+            ]
+          }
+          */
+        },
+        getRandomInt () {
+          return Math.floor(Math.random() * (50 - 5 + 1)) + 5              
+        }
+      }
     });
+
 
 
     const socket = io();
@@ -164,8 +224,7 @@
         socket.on('clientMessage', function(data) {
             console.log('received clientMessage: ' + JSON.stringify(data));
             app.lastMessage = JSON.stringify(data);
-            app.labels.push(data.msg.time);
-            app.dataset.push(data.msg.count);
+            app.addData(data.msg.time, data.msg.count);
         });
 
         socket.on('heartbeat', function(data) {
