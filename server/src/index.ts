@@ -3,6 +3,7 @@ import { json } from 'body-parser';
 import * as cors from 'cors';
 import * as helmet from 'helmet';
 import * as morgan from 'morgan';
+import Redis = require("ioredis");
 
 // Set up express and some default handlers
 const expressApp = express()
@@ -16,6 +17,13 @@ const expressApp = express()
 const expressHttpServer = require('http').createServer(expressApp);
 const socketIo = require('socket.io')(expressHttpServer);
 
+// get our connection to redis all set up
+const redis = new Redis(); // this will connection to 127.0.0.1:6379
+// TODO: Need to figure out how to detect if redis is down and handle it gracefully
+// Looks like you can specify lazyConnect = true, then call async redis.connect() and handle the exception but haven't tried it yet
+
+var res = redis.set("test:startupMsg", "Hello! Server started at " + new Date());
+console.log("wrote startup message: " + JSON.stringify(res));
 
 
 
@@ -70,8 +78,11 @@ for(const endpoint in schema) {
 // set up the socket handler
 socketIo.on('connection', function(socket){
   console.log('Got new client connection');
+  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
   socket.on('clientMessage', function(msg){
+    var t = new Date();
+    redis.xadd('client:runLog', '*', 'message', JSON.stringify(msg), 'time', t.toString());
     console.log('Got client message: ' + JSON.stringify(msg));
 
     // broadcast it back out to everyone (including the original sender)
