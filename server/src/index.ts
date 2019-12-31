@@ -13,12 +13,13 @@ const expressApp = express()
   .use(morgan('combined'))
   .use(express.static('www'));
 
-// get socket.io ready
 const expressHttpServer = require('http').createServer(expressApp);
+
+// get socket.io ready
 const socketIo = require('socket.io')(expressHttpServer);
 
 // get our connection to redis all set up
-const redis = new Redis(); // this will connection to 127.0.0.1:6379
+const redis = new Redis(); // this will connect to 127.0.0.1:6379
 // TODO: Need to figure out how to detect if redis is down and handle it gracefully
 // Looks like you can specify lazyConnect = true, then call async redis.connect() and handle the exception but haven't tried it yet
 
@@ -31,19 +32,29 @@ console.log("wrote startup message: " + JSON.stringify(res));
 const schema = {
   // the endpoint for the data we are collecting
   data: {
-    // maybe add some type information in here too
+    // maybe add some type information in here too?
     fields: [
       'reading1',
       'reading2'
     ],
 
-    // something to flag it as N items
+    // something to flag it as N items (as opposed to the controlPanel which will normally only have one)
 
     // and a temporary hack to hold entries in memory until I wire up the db
     db: [{reading1: 123, reading2:321}, {reading1: 654, reading2:456}]
   },
 
-  // the endpoint for the controlPanel
+
+  // the endpoint for client runtime messages. Messages that clients post to this will be added to the runtime
+  // messages table and can be viewed in the UI
+  messages: {
+    fields: [
+      'text',
+    ]
+  },
+
+
+  // the endpoint for the controlPanel / settings
   controlPanel: {
     fields: [
       'run',
