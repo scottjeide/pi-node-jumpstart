@@ -39,6 +39,12 @@ if it keeps things simpler.
 If we declare things like this, we could have the UI code automatically put in the given control
 types (bool = toggle, range = slider, number = text box, etc)
 
+When re-using this, the only thing I can think I might want to add another table/endpoint for are other measurements.
+Messages and settings would probably only have one of them. The only slight caveat is that when I'm making a new 'run' 
+I'd likely want to separate out messages and config from previous ones. Later on down the road I might end up wanting
+to save/load configurations, but that wouldn't likely be different config classes and supporting older ones. Although could
+technically data drive things by pulling out the schema stuff into something that's just persisted in the DB.
+
 */
 
 
