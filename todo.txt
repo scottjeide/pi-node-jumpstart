@@ -1,0 +1,6 @@
+
+
+- document the 3 pieces and wha they do: client (the pi doing stuff), 
+  server (routing messages around and logging things to the db), 
+  and UI (controlling things and displaying status)
+- When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId
