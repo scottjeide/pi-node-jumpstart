@@ -4,6 +4,7 @@ import * as cors from 'cors';
 import * as helmet from 'helmet';
 import * as morgan from 'morgan';
 import Redis = require("ioredis");
+import * as dataDefinitions from '../../shared/dataDefinitions'
 
 // Set up express and some default handlers
 const expressApp = express()
@@ -71,6 +72,19 @@ const schema = {
 
 
 };
+
+// Set up the controlPanel api handlers
+expressApp.get('/controlPanel', (req, res) => {
+  res.send(dataDefinitions.controlPanel);
+});
+expressApp.post('/controlPanel', (req, res) => {
+  // set everything except the run-id 
+  if (req.body.) {
+    
+  }
+  // echo it back
+  res.send(dataDefinitions.controlPanel);
+});
 
 
 

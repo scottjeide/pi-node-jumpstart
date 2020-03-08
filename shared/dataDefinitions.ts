@@ -2,69 +2,65 @@
 // This defines the data objects used by the client/server and stored in the DB
 
 /**
- * The controlPanel is the main object that contains the settings for a given run.
+ * The controlPanel is the main object that contains the settings for the run.
  * If you need additional settings, add them here.
  * 
  * The example below is what some settings for a temperature controller for a smoker might use.
- * These are set by the UI through the rest endpoint /controlPanel
- * Anytime something is written to the control panel, it will be broadcast on the socket
- * io:controlPanel so the runners (need to find a word for that - basically the command line
- * client that's actually turning things on/off and making measurements). Probably just leave it
- * called client though - client (the pi doing stuff), server (logging things), and UI (controlling things 
- * and displaying status)
+ * These are set by the UI by POSTing a controlPanel object to the rest endpoint /controlPanel
+ * 
+ * Anytime a new controlPanel object is written, it will be broadcast on the socket
+ * io:controlPanel so the clients can turn on/off or adjust their settings. 
  */
 const controlPanel = {
-
-  // TODO: Maybe this should have a create/new operator that returns one of these? 
-
-
 
   // indicates if we are running or not. Clients can set this on/off to switch the system on or off
   on: false,
 
-  // the current run identifier (when the system is ON). Set by the server only
+  // the current run identifier (when the system is ON). Set by the server when the system is turned on
   runId: '',
 
   // the desired smoker temp (in degrees C)
   smokerSetTemp: 0,
 
-  // Could also set low/high meat and smoker alert thresholds?
+  // Could also set low/high meat and smoker alert thresholds
 };
 
 
 
 /**
  * The measurements that the client will be making and sending to the server for logging.
- * Each property within measurements is it's own endpoint and can be reported/logged independently.
  * 
- * Measurements can be read via the /measurements/run-id/ rest endpoint. 
+ * Measurements can be read via GETs to the /measurement rest endpoint
+ * /measurement gets them all
+ * /measurement/run-id to get them all for a given run
+ * /measurement/run-id/<measurementName> to get all of the given measurements for a run
  * 
- * Posting to /measurements/run-id/temp will log a new temp measurement. 
- * Posting to /measurements/run-id/system will log a new system measurement.
+ * Post a measurement object to /measurement to log a new measurement for the current run.
+ * Not all measurement properties need to be in the given measurement object. Whatever properties are filled in
+ * will be logged.
  * 
- * Anytime a measurement is written, it will also be broadcast through the socket io:measurements:<name>. 
- * For example, io:measurements:temp or io:measurements:system
+ * Anytime a measurement is written, it will also be broadcast through the socket io:measurement. 
  */
-const measurements = {
-  // each measurement property here is its own rest endpoint and can be posted independently
+const measurement = {
 
-  temp: {
-    smoker: 0,
-    meat: 0,
-  },
-
-  // Example of another set of measurements
-  system: {
-    batteryLevel: 0,
-    wifiStrength: 0,
-  },
+  smokerTemp: 0,
+  meatTemp: 0,
+  batteryLevel: 0,
+  wifiStrength: 0,
 };
 
 
 /**
  * The runtime messages sent from the client to server to report back status
+ * These are posted to /runtimeMessage and when they are posted they are also 
+ * broadcast on the io:runtimeMessage socket
  */
 const runtimeMessage = {
   text: '',
 };
 
+export {
+  controlPanel,
+  measurement,
+  runtimeMessage
+}
