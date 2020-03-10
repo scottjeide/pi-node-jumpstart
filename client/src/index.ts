@@ -16,33 +16,32 @@ const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
 console.log(`Connecting to: ${serverRootUrl}`);
 
 
-// see if we can hit the rest API
-fetch(`${serverRootUrl}/data`)
-  .then(res => res.text())
-  .then(body => console.log(body));
 
 
-// and listen for something from the server on our socket
+// Listen for any controlPanel/settings changes
 const socket = io(serverRootUrl);
 socket.on('connect', function() {
   console.log('socket is connected');
 
+  // Read the current settings - any changes will come through the socket message. Reading them
+  // here in order to pick up any settings that might have been made while we were disconnected
+  fetch(`${serverRootUrl}/controlPanel`)
+    .then(res => res.text())
+    .then(body => {
+      console.log("Read initial controlPanel from server: " + body)
+    });
+
 });
 
-// send a message every few seconds to the server
-let heartbeatCount = 0;
-setInterval(() => {
-  console.log('sending message to server');
-  socket.emit('clientMessage', {client: true, count: heartbeatCount++, time: new Date()});
-}, 3000);
-
-socket.on('heartbeat', function(data) {
-  console.log('received heartbeat: ' + JSON.stringify(data));
+socket.on('io:controlPanel', function(data) {
+  console.log('got updated settings from the server: ' + JSON.stringify(data));
 });
 
-socket.on('clientMessage', function(data) {
-  console.log('received clientMessage: ' + JSON.stringify(data));
-});
+
+
+
+
+
 
 socket.on('disconnect', function() {
   console.log('disconnected');

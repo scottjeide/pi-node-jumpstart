@@ -158,13 +158,6 @@ socketIo.on('connection', function(socket){
   });
 });
 
-// broadcast a message every few seconds just to see if it's working
-let heartbeatCount = 0;
-setInterval(() => {
-  socketIo.emit('heartbeat', {count: heartbeatCount++});
-}, 3000);
-
-
 
 // start listening for client connections
 expressHttpServer.listen(3001, () => {
