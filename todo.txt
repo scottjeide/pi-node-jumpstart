@@ -8,3 +8,8 @@
     - ./redis-server on my mac is what I use
 - Get the .vscode/launch.json stuff setup to be able to use debug configs
 - Does it even make sense to namespace the socket message channels with io:? Could just make it one-to-one with the rest apis
+- does the client and server code even need webpack? https://code.visualstudio.com/docs/typescript/typescript-tutorial
+  - Seems like it doesn't. typescript's tsc command looks like it also packages up to a single js file
+  - And if I switch to those will it make me unable to use newer es6 stuff?, or maybe make it easier to debug
+  - Next time I finally jump on this, try removing the webpack stuff and see if that works and makes debugging any easier
+  
