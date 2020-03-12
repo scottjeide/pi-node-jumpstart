@@ -4,29 +4,18 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach",
-      "port": 9229,
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    },
+
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch via NPM",
-      "cwd": "${workspaceFolder}/server",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:dev"
-      ],
-      "port": 9229,
+      "name": "Launch Server",
       "skipFiles": [
         "<node_internals>/**"
-      ]
+      ],
+      "program": "${workspaceFolder}/server/src/index.ts",
+      "preLaunchTask": "tsc: build - server/tsconfig.json",
+      "outFiles": ["${workspaceFolder}/server/build/**/*.js"],
+      "cwd": "${workspaceFolder}/server"
     }
   ]
 }
