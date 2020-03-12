@@ -13,10 +13,9 @@ commandLine
 commandLine.parse(process.argv);
 
 const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
+
+
 console.log(`Connecting to: ${serverRootUrl}`);
-
-
-
 
 // Listen for any controlPanel/settings changes
 const socket = io(serverRootUrl);

@@ -16,6 +16,18 @@
       "preLaunchTask": "tsc: build - server/tsconfig.json",
       "outFiles": ["${workspaceFolder}/server/build/**/*.js"],
       "cwd": "${workspaceFolder}/server"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Client",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/client/src/index.ts",
+      "preLaunchTask": "tsc: build - client/tsconfig.json",
+      "outFiles": ["${workspaceFolder}/client/build/**/*.js"],
+      "cwd": "${workspaceFolder}/client"
     }
   ]
 }
