@@ -12,4 +12,6 @@
   - Seems like it doesn't. typescript's tsc command looks like it also packages up to a single js file
   - And if I switch to those will it make me unable to use newer es6 stuff?, or maybe make it easier to debug
   - Next time I finally jump on this, try removing the webpack stuff and see if that works and makes debugging any easier
+  https://code.visualstudio.com/docs/typescript/typescript-compiling
+  - run 'npx tsc' from the server directory to build
   
