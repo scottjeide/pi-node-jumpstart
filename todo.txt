@@ -4,7 +4,7 @@
   server (routing messages around and logging things to the db), 
   and UI (controlling things and displaying status)
 - When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId
-- automatically start redis-server when the server launches if not already running
+- automatically start redis-server when the server launches if not already running?
     - redis-server on my mac is what I use
 - Get the .vscode/launch.json stuff setup to be able to use debug configs
 - Does it even make sense to namespace the socket message channels with io:? Could just make it one-to-one with the rest apis
@@ -15,3 +15,6 @@
   https://code.visualstudio.com/docs/typescript/typescript-compiling
   - run 'npx tsc' from the server directory to build
   
+- Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
+- Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly
+- clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic

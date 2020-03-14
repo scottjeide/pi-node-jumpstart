@@ -47,7 +47,6 @@ const redis = new Redis({lazyConnect: true})
 //console.log("wrote startup message: " + JSON.stringify(res));
 
 
-// TODO: can change the socketio writes below to just use a pub/sub on redis
 
 // Set up the controlPanel api handlers
 expressApp.get('/controlPanel', (req, res) => {
