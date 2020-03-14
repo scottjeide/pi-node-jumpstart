@@ -15,18 +15,39 @@ const expressApp = express()
   .use(express.static('www'));
 
 const expressHttpServer = require('http').createServer(expressApp);
+let serverListening = false;
 
 // get socket.io ready
 const socketIo = require('socket.io')(expressHttpServer);
 
-// get our connection to redis all set up
-const redis = new Redis(); // this will connect to 127.0.0.1:6379
-// TODO: Need to figure out how to detect if redis is down and handle it gracefully
-// Looks like you can specify lazyConnect = true, then call async redis.connect() and handle the exception but haven't tried it yet
+// get our connection to redis all set up. Will connect to 127.0.0.1:6379 by default
+const redis = new Redis({lazyConnect: true})
+.on('connect', () => {
+  console.log("Connected to redis");
+
+  // once we are connected to redis we can start serving client connections
+  if (!serverListening) {
+    console.log("Starting http server");
+    expressHttpServer.listen(3001, () => {
+      console.log('listening on port 3001');
+    });
+    serverListening = true;
+  }
+})
+.on('error', (err) => {
+  console.log("Redis error: " + err);
+})
+.on('reconnecting', (ms) => {
+  console.log(`Reconnecting to redis in ${ms} ms`);
+}); 
+
+
 
 //var res = redis.set("test:startupMsg", "Hello! Server started at " + new Date());
 //console.log("wrote startup message: " + JSON.stringify(res));
 
+
+// TODO: can change the socketio writes below to just use a pub/sub on redis
 
 // Set up the controlPanel api handlers
 expressApp.get('/controlPanel', (req, res) => {
@@ -80,7 +101,8 @@ expressApp.post('/measurement', (req, res) => {
     if (dataDefinitions.measurement.hasOwnProperty(prop)) {
       // valid measurement so log it
       
-      // Probably would be best to just write the all in one xadd call, but try this first
+      // Probably would be best to just write them all in one xadd call, but try this first. Or may need 
+      // to write them as separate measurements measurement:runid:measurementName to query them individually
 
       const dbRet = redis.xadd(
         'measurement:' + dataDefinitions.controlPanel.runId, 
@@ -158,9 +180,11 @@ socketIo.on('connection', function(socket){
   });
 });
 
-
-// start listening for client connections
-expressHttpServer.listen(3001, () => {
-  console.log('listening on port 3001');
+// Now that we're all set up, make the connection to redis and once we are connected we can start listening
+// for client connections
+redis.connect()
+.catch((error) => {
+  console.log(`Connect error: ${error}`);
 });
+
 
