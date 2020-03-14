@@ -23,11 +23,11 @@ const socketIo = require('socket.io')(expressHttpServer);
 // get our connection to redis all set up. Will connect to 127.0.0.1:6379 by default
 const redis = new Redis({lazyConnect: true})
 .on('connect', () => {
-  console.log("Connected to redis");
+  console.log('Connected to redis');
 
   // once we are connected to redis we can start serving client connections
   if (!serverListening) {
-    console.log("Starting http server");
+    console.log('Starting http server');
     expressHttpServer.listen(3001, () => {
       console.log('listening on port 3001');
     });
@@ -35,7 +35,7 @@ const redis = new Redis({lazyConnect: true})
   }
 })
 .on('error', (err) => {
-  console.log("Redis error: " + err);
+  console.log(`Redis error: ${err}`);
 })
 .on('reconnecting', (ms) => {
   console.log(`Reconnecting to redis in ${ms} ms`);
@@ -56,13 +56,13 @@ expressApp.get('/controlPanel', (req, res) => {
 expressApp.post('/controlPanel', (req, res) => {
   const newSettings = {...req.body};
   
-  console.log("Received new controlPanel setting: " + JSON.stringify(newSettings));
+  console.log(`Received new controlPanel setting: ${JSON.stringify(newSettings)}`);
 
   // the server controls the runId property
   if (newSettings.on && !dataDefinitions.controlPanel.on) {
     // starting a new run so create a new rid
     newSettings.runId = (new Date).toString();
-    console.log("Starting new runId: " + newSettings.runId);
+    console.log(`Starting new runId: ${newSettings.runId}`);
   }
   else {
     delete newSettings.runId;
@@ -75,8 +75,8 @@ expressApp.post('/controlPanel', (req, res) => {
   }
   
   // Save off the runid in the db
-  const dbRes = redis.set("runId:" + dataDefinitions.controlPanel.runId, JSON.stringify(dataDefinitions.controlPanel));
-  console.log("Saved runId, res: " + dbRes);
+  const dbRes = redis.set(`runId:${dataDefinitions.controlPanel.runId}`, JSON.stringify(dataDefinitions.controlPanel));
+  console.log(`Saved runId, res: ${dbRes}`);
 
   // echo it back on the post request response
   res.send(dataDefinitions.controlPanel);
@@ -93,7 +93,7 @@ expressApp.get('/measurement', (req, res) => {
 expressApp.post('/measurement', (req, res) => {
   const measurement = {...req.body};
   
-  console.log("Received new measurement: " + JSON.stringify(measurement));
+  console.log(`Received new measurement: ${JSON.stringify(measurement)}`);
   
   const now = new Date();
   // remove anything that shouldn't be there just in case
@@ -110,7 +110,7 @@ expressApp.post('/measurement', (req, res) => {
         prop, measurement.prop, 
         'time', now.toString()
         );
-      console.log("Measurement save ret: " + dbRet);
+      console.log(`Measurement save ret: ${dbRet}`);
     }
     else {
       delete measurement.prop;
@@ -132,7 +132,7 @@ expressApp.get('/runtimeMessage', (req, res) => {
 expressApp.post('/runtimeMessage', (req, res) => {
   const runtimeMessage = {...req.body};
   
-  console.log("Received new message: " + JSON.stringify(runtimeMessage));
+  console.log(`Received new message: ${JSON.stringify(runtimeMessage)}`);
   
   const now = new Date();
 
@@ -149,7 +149,7 @@ expressApp.post('/runtimeMessage', (req, res) => {
     'text', runtimeMessage.text,
     'time', now.toString()
     );
-  console.log("Measurement save ret: " + dbRet);
+  console.log(`Measurement save ret: ${dbRet}`);
 
   // echo it back on the post request response
   res.send(runtimeMessage);
@@ -166,7 +166,7 @@ socketIo.on('connection', function(socket){
 //  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
   socket.on('io:runtimeMessage', function(msg){
-    console.log('Got runtimeMessage: ' + JSON.stringify(msg));
+    console.log(`Got runtimeMessage: ${JSON.stringify(msg)}`);
 
     // broadcast it back out to everyone (including the original sender)
     //socketIo.emit('clientMessage', {emit: true, msg: msg});
