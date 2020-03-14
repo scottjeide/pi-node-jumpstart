@@ -13,13 +13,11 @@ commandLine
 commandLine.parse(process.argv);
 
 const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
-
-
 console.log(`Connecting to: ${serverRootUrl}`);
 
 // Listen for any controlPanel/settings changes
-const socket = io(serverRootUrl);
-socket.on('connect', function() {
+const socket = io(serverRootUrl)
+.on('connect', function() {
   console.log('socket is connected');
 
   // Read the current settings - any changes will come through the socket message. Reading them
@@ -27,16 +25,18 @@ socket.on('connect', function() {
   fetch(`${serverRootUrl}/controlPanel`)
     .then(res => res.text())
     .then(body => {
-      console.log("Read initial controlPanel from server: " + body)
+      console.log(`Read initial controlPanel from server: ${JSON.stringify(body)}`);
     });
 
+})
+.on('io:controlPanel', function(data) {
+  console.log(`got updated settings from the server: ${JSON.stringify(data)}`);
 });
 
-socket.on('io:controlPanel', function(data) {
-  console.log('got updated settings from the server: ' + JSON.stringify(data));
-});
+// how do we type these? Should always be the controlPanel object from the dataDefinitions
+function handleSettings(settings) {
 
-
+}
 
 
 
