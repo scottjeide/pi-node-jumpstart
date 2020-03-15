@@ -1,6 +1,7 @@
 import commandLine = require('commander');
 const fetch = require('node-fetch');
 import io = require('socket.io-client');
+import * as dataDefinitions from '../../shared/dataDefinitions'
 
 
 
@@ -19,6 +20,14 @@ console.log(`Connecting to: ${serverRootUrl}`);
 const socket = io(serverRootUrl)
 .on('connect', function() {
   console.log('socket is connected');
+
+  // just testing:
+  const msg : dataDefinitions.runtimeMessage = {
+    text: 'Hello from client'
+  };
+
+  sendServerMessage(msg);
+
 
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
@@ -39,6 +48,27 @@ function handleSettings(settings) {
 }
 
 
+/**
+ * Sends a runtime message to the server
+ * @param message the message to send
+ */
+function sendServerMessage(message: dataDefinitions.runtimeMessage) {
+  console.log('Sending runtimeMessage to server');
+  fetch(`${serverRootUrl}/runtimeMessage`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  })
+  .then((response: { json: () => any; }) => response.json())
+  .then((data: dataDefinitions.runtimeMessage) => {
+    console.log('Sent message, response:', data);
+  })
+  .catch((error) => {
+    console.error('Error sending message:', error);
+  });
+}
 
 
 

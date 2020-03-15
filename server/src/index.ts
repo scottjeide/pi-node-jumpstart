@@ -90,37 +90,33 @@ expressApp.get('/measurement', (req, res) => {
   //res.send(dataDefinitions.controlPanel);
 });
 expressApp.post('/measurement', (req, res) => {
-  const measurement = {...req.body};
+  const clientMeasurement: dataDefinitions.measurement = {...req.body};
   
-  console.log(`Received new measurement: ${JSON.stringify(measurement)}`);
+  console.log(`Received new measurement: ${JSON.stringify(clientMeasurement)}`);
   
   const now = new Date();
-  // remove anything that shouldn't be there just in case
-  for (let prop in measurement) {
-    if (dataDefinitions.measurement.hasOwnProperty(prop)) {
-      // valid measurement so log it
-      
-      // Probably would be best to just write them all in one xadd call, but try this first. Or may need 
+
+  // probably could remove/ignore any props in the measurement that we don't expect, but doesn't really matter
+  // for my use cases. If this was exposed publicly then would need to sanitize things (probably just worth a note
+  // in the readme of what to change if making it publicly accessible)
+  for (let prop in clientMeasurement) {
+      // It may be better to just write them all in one xadd call, but try this first. Or may need 
       // to write them as separate measurements measurement:runid:measurementName to query them individually
 
       const dbRet = redis.xadd(
         'measurement:' + dataDefinitions.controlPanel.runId, 
         '*', 
-        prop, measurement.prop, 
+        prop, clientMeasurement[prop], 
         'time', now.toString()
         );
       console.log(`Measurement save ret: ${dbRet}`);
-    }
-    else {
-      delete measurement.prop;
-    }
   }
 
   // echo it back on the post request response
-  res.send(measurement);
+  res.send(clientMeasurement);
 
   // and broadcast it on the socket
-  socketIo.emit('io:measurement', {emit: true, msg: measurement});
+  socketIo.emit('io:measurement', {emit: true, msg: clientMeasurement});
 });
 
 
@@ -129,18 +125,11 @@ expressApp.get('/runtimeMessage', (req, res) => {
   //res.send(dataDefinitions.controlPanel);
 });
 expressApp.post('/runtimeMessage', (req, res) => {
-  const runtimeMessage = {...req.body};
+  const runtimeMessage: dataDefinitions.runtimeMessage = {...req.body};
   
   console.log(`Received new message: ${JSON.stringify(runtimeMessage)}`);
   
   const now = new Date();
-
-  // remove anything that shouldn't be there just in case
-  for (let prop in runtimeMessage) {
-    if (!dataDefinitions.runtimeMessage.hasOwnProperty(prop)) {
-      delete runtimeMessage.prop;
-    }
-  }
 
   const dbRet = redis.xadd(
     'runtimeMessage:' + dataDefinitions.controlPanel.runId, 

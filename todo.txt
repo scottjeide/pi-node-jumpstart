@@ -18,3 +18,4 @@
 - Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
 - Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly
 - clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic
+- switch the shared types to typescript
