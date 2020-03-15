@@ -49,16 +49,22 @@ const redis = new Redis({lazyConnect: true})
 
 
 // Set up the controlPanel api handlers
+const currentSettings: dataDefinitions.controlPanel = {
+  on: false,
+  runId: '',
+  smokerSetTemp: 225
+};
+
 expressApp.get('/controlPanel', (req, res) => {
-  res.send(dataDefinitions.controlPanel);
+  res.send(currentSettings);
 });
 expressApp.post('/controlPanel', (req, res) => {
-  const newSettings = {...req.body};
+  const newSettings: dataDefinitions.controlPanel = {...req.body};
   
-  console.log(`Received new controlPanel setting: ${JSON.stringify(newSettings)}`);
+  console.log('Received new controlPanel setting', newSettings);
 
   // the server controls the runId property
-  if (newSettings.on && !dataDefinitions.controlPanel.on) {
+  if (newSettings.on && !currentSettings.on) {
     // starting a new run so create a new rid
     newSettings.runId = (new Date).toString();
     console.log(`Starting new runId: ${newSettings.runId}`);
@@ -67,21 +73,21 @@ expressApp.post('/controlPanel', (req, res) => {
     delete newSettings.runId;
   }
 
-  for (let prop in dataDefinitions.controlPanel) {
+  for (let prop in currentSettings) {
     if (newSettings.hasOwnProperty(prop)) {
-        dataDefinitions.controlPanel[prop] = newSettings[prop];
+        currentSettings[prop] = newSettings[prop];
     }
   }
   
   // Save off the runid in the db
-  const dbRes = redis.set(`runId:${dataDefinitions.controlPanel.runId}`, JSON.stringify(dataDefinitions.controlPanel));
+  const dbRes = redis.set(`runId:${currentSettings.runId}`, JSON.stringify(currentSettings));
   console.log(`Saved runId, res: ${dbRes}`);
 
   // echo it back on the post request response
-  res.send(dataDefinitions.controlPanel);
+  res.send(currentSettings);
 
   // and broadcast it on the socket
-  socketIo.emit('io:controlPanel', {emit: true, msg: dataDefinitions.controlPanel});
+  socketIo.emit('io:controlPanel', {emit: true, msg: currentSettings});
 });
 
 
@@ -92,7 +98,7 @@ expressApp.get('/measurement', (req, res) => {
 expressApp.post('/measurement', (req, res) => {
   const clientMeasurement: dataDefinitions.measurement = {...req.body};
   
-  console.log(`Received new measurement: ${JSON.stringify(clientMeasurement)}`);
+  console.log('Received new measurement:', clientMeasurement);
   
   const now = new Date();
 
@@ -104,7 +110,7 @@ expressApp.post('/measurement', (req, res) => {
       // to write them as separate measurements measurement:runid:measurementName to query them individually
 
       const dbRet = redis.xadd(
-        'measurement:' + dataDefinitions.controlPanel.runId, 
+        'measurement:' + currentSettings.runId, 
         '*', 
         prop, clientMeasurement[prop], 
         'time', now.toString()
@@ -132,7 +138,7 @@ expressApp.post('/runtimeMessage', (req, res) => {
   const now = new Date();
 
   const dbRet = redis.xadd(
-    'runtimeMessage:' + dataDefinitions.controlPanel.runId, 
+    'runtimeMessage:' + currentSettings.runId, 
     '*', 
     'text', runtimeMessage.text,
     'time', now.toString()
@@ -153,8 +159,8 @@ socketIo.on('connection', function(socket){
   console.log('Got new client connection');
 //  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
-  socket.on('io:runtimeMessage', function(msg){
-    console.log(`Got runtimeMessage: ${JSON.stringify(msg)}`);
+  socket.on('io:runtimeMessage', function(msg: dataDefinitions.runtimeMessage){
+    console.log('Got runtimeMessage:', msg);
 
     // broadcast it back out to everyone (including the original sender)
     //socketIo.emit('clientMessage', {emit: true, msg: msg});
@@ -172,7 +178,7 @@ socketIo.on('connection', function(socket){
 // for client connections
 redis.connect()
 .catch((error) => {
-  console.log(`Connect error: ${error}`);
+  console.log('Connect error:', error);
 });
 
 

@@ -19,3 +19,4 @@
 - Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly
 - clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic
 - switch the shared types to typescript
+- Would be nice to switch the tsc options to create a single output file if could figure it output

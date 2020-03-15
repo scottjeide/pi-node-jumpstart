@@ -2,6 +2,7 @@ import commandLine = require('commander');
 const fetch = require('node-fetch');
 import io = require('socket.io-client');
 import * as dataDefinitions from '../../shared/dataDefinitions'
+import { randomBytes } from 'crypto';
 
 
 
@@ -16,7 +17,17 @@ commandLine.parse(process.argv);
 const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
 console.log(`Connecting to: ${serverRootUrl}`);
 
+
 // Listen for any controlPanel/settings changes
+// TODO: Figure out how to initialize these in the data definitions file
+// otherwise you have to change this for every new setting to give
+// it a default value. 
+let currentSettings: dataDefinitions.controlPanel = {
+  on: false,
+  runId: '',
+  smokerSetTemp: 0,
+};
+
 const socket = io(serverRootUrl)
 .on('connect', function() {
   console.log('socket is connected');
@@ -31,20 +42,50 @@ const socket = io(serverRootUrl)
 
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
-  fetch(`${serverRootUrl}/controlPanel`)
-    .then(res => res.text())
-    .then(body => {
-      console.log(`Read initial controlPanel from server: ${JSON.stringify(body)}`);
+  fetch(`${serverRootUrl}/controlPanel` , {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((res: { text: () => any; }) => res.text())
+    .then((settings: dataDefinitions.controlPanel) => {
+      console.log('Read initial controlPanel from server', settings);
+      handleSettings(settings);
     });
 
 })
-.on('io:controlPanel', function(data) {
-  console.log(`got updated settings from the server: ${JSON.stringify(data)}`);
+.on('io:controlPanel', (data) => {
+  const settings: dataDefinitions.controlPanel = data.msg;
+  console.log('got updated settings from the server', settings);
+  handleSettings(settings);
 });
 
-// how do we type these? Should always be the controlPanel object from the dataDefinitions
-function handleSettings(settings) {
+function handleSettings(newSettings: dataDefinitions.controlPanel) {
 
+  // just a super basic timer for now to see if I can do some 'measurements' on an interval and report to the server
+  let timer = null;
+  if (newSettings.on && !currentSettings.on) {
+    // start up the client
+    if (timer == null) {
+      timer = setInterval(() => {
+        const measurement: dataDefinitions.measurement = {
+          smokerTemp: Math.random(),
+          meatTemp: Math.random()
+        }
+
+        sendMeasurement(measurement);
+      }, 5000);
+    }
+  }
+  else if (!newSettings.on && currentSettings.on) {
+    // shutdown the client
+    if (timer != null) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  currentSettings = newSettings;
 }
 
 
@@ -54,23 +95,31 @@ function handleSettings(settings) {
  */
 function sendServerMessage(message: dataDefinitions.runtimeMessage) {
   console.log('Sending runtimeMessage to server');
-  fetch(`${serverRootUrl}/runtimeMessage`, {
+
+  return put(`${serverRootUrl}/runtimeMessage`, message);
+}
+
+function sendMeasurement(data: dataDefinitions.measurement) {
+  console.log('Sending measurement to server', data);
+  return put(`${serverRootUrl}/measurement`, data);
+}
+
+function put(url:string, data: any) {
+  fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(message),
+    body: JSON.stringify(data),
   })
   .then((response: { json: () => any; }) => response.json())
-  .then((data: dataDefinitions.runtimeMessage) => {
-    console.log('Sent message, response:', data);
+  .then((data: any) => {
+    console.log('Send response:', data);
   })
-  .catch((error) => {
-    console.error('Error sending message:', error);
+  .catch((error: any) => {
+    console.error('Error sending:', error);
   });
 }
-
-
 
 socket.on('disconnect', function() {
   console.log('disconnected');
