@@ -11,16 +11,16 @@
  * Anytime a new controlPanel object is written, it will be broadcast on the socket
  * io:controlPanel so the clients can turn on/off or adjust their settings. 
  */
-const controlPanel = {
+interface controlPanel {
 
   // indicates if we are running or not. Clients can set this on/off to switch the system on or off
-  on: false,
+  on: boolean,
 
   // the current run identifier (when the system is ON). Set by the server when the system is turned on
-  runId: '',
+  runId: string,
 
   // the desired smoker temp (in degrees C)
-  smokerSetTemp: 0,
+  smokerSetTemp: number,
 
   // Could also set low/high meat and smoker alert thresholds
 };
@@ -42,10 +42,10 @@ const controlPanel = {
  * Anytime a measurement is written, it will also be broadcast through the socket io:measurement. 
  */
 interface measurement {
-  smokerTemp: number;
-  meatTemp: number;
-  batteryLevel: number;
-  wifiStrength: number;
+  smokerTemp?: number;
+  meatTemp?: number;
+  batteryLevel?: number;
+  wifiStrength?: number;
 }
 
 

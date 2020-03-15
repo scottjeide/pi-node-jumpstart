@@ -3,6 +3,6 @@
     "sourceMap": true,
     "target": "es5",
     "module": "commonjs",
-    "outDir": "build"      
+    "outDir": "build"
   }
 }
