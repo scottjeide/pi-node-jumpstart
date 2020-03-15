@@ -41,13 +41,14 @@ const controlPanel = {
  * 
  * Anytime a measurement is written, it will also be broadcast through the socket io:measurement. 
  */
-const measurement = {
+interface measurement {
+  smokerTemp: number;
+  meatTemp: number;
+  batteryLevel: number;
+  wifiStrength: number;
+}
 
-  smokerTemp: 0,
-  meatTemp: 0,
-  batteryLevel: 0,
-  wifiStrength: 0,
-};
+
 
 
 /**
@@ -55,9 +56,9 @@ const measurement = {
  * These are posted to /runtimeMessage and when they are posted they are also 
  * broadcast on the io:runtimeMessage socket
  */
-const runtimeMessage = {
-  text: '',
-};
+interface runtimeMessage {
+  text: string;
+}
 
 export {
   controlPanel,
