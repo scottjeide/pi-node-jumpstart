@@ -42,12 +42,8 @@ const socket = io(serverRootUrl)
 
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
-  fetch(`${serverRootUrl}/controlPanel` , {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((res: { text: () => any; }) => res.text())
+  fetch(`${serverRootUrl}/controlPanel`)
+    .then((res: { json: () => any; }) => res.json())
     .then((settings: dataDefinitions.controlPanel) => {
       console.log('Read initial controlPanel from server', settings);
       handleSettings(settings);
@@ -60,10 +56,12 @@ const socket = io(serverRootUrl)
   handleSettings(settings);
 });
 
+let timer = null;
+/**
+ * just a super basic timer for now to see if I can do some 'measurements' on an interval and report to the server
+ * @param newSettings 
+ */
 function handleSettings(newSettings: dataDefinitions.controlPanel) {
-
-  // just a super basic timer for now to see if I can do some 'measurements' on an interval and report to the server
-  let timer = null;
   if (newSettings.on && !currentSettings.on) {
     // start up the client
     if (timer == null) {
@@ -74,7 +72,7 @@ function handleSettings(newSettings: dataDefinitions.controlPanel) {
         }
 
         sendMeasurement(measurement);
-      }, 5000);
+      }, 10000);
     }
   }
   else if (!newSettings.on && currentSettings.on) {

@@ -12,7 +12,11 @@ const expressApp = express()
   .use(json())
   .use(cors())
   .use(morgan('combined'))
-  .use(express.static('www'));
+  .use(express.static('www'))
+  .use((req, res, next) => {
+    res.header("Content-Type",'application/json');
+    next();
+  });
 
 const expressHttpServer = require('http').createServer(expressApp);
 let serverListening = false;
