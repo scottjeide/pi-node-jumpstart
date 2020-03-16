@@ -2,8 +2,6 @@ import commandLine = require('commander');
 const fetch = require('node-fetch');
 import io = require('socket.io-client');
 import * as dataDefinitions from '../../shared/dataDefinitions'
-import { randomBytes } from 'crypto';
-
 
 
 // set up the command line parser
@@ -19,9 +17,6 @@ console.log(`Connecting to: ${serverRootUrl}`);
 
 
 // Listen for any controlPanel/settings changes
-// TODO: Figure out how to initialize these in the data definitions file
-// otherwise you have to change this for every new setting to give
-// it a default value. 
 let currentSettings: dataDefinitions.controlPanel = {
   on: false,
   runId: '',
