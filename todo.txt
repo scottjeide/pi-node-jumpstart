@@ -6,17 +6,15 @@
 - When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId
 - automatically start redis-server when the server launches if not already running?
     - redis-server on my mac is what I use
-- Get the .vscode/launch.json stuff setup to be able to use debug configs
 - Does it even make sense to namespace the socket message channels with io:? Could just make it one-to-one with the rest apis
-- does the client and server code even need webpack? https://code.visualstudio.com/docs/typescript/typescript-tutorial
-  - Seems like it doesn't. typescript's tsc command looks like it also packages up to a single js file
-  - And if I switch to those will it make me unable to use newer es6 stuff?, or maybe make it easier to debug
-  - Next time I finally jump on this, try removing the webpack stuff and see if that works and makes debugging any easier
+- typescript 
   https://code.visualstudio.com/docs/typescript/typescript-compiling
-  - run 'npx tsc' from the server directory to build
+  - run 'npx tsc' from the server directory to build, or I just installed it globally (npm install -g typescript)
   
 - Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
 - Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly
 - clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic
-- switch the shared types to typescript
 - Would be nice to switch the tsc options to create a single output file if could figure it output
+
+- Figure out how to initialize the props in the data definitions to defaults in the dataDefinitions file. otherwise every time
+you add a new measurement or something you need to initialize it in the places in the client/server/ui code that are creating one
