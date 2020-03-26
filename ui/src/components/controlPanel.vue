@@ -1,9 +1,28 @@
 <template>
-  <p> I'm the controlPanel </p>
+  <div>
+    <p> I'm the controlPanel </p>
+    <v-divider></v-divider>
+    <v-switch
+        v-model="onOff"
+        :label="On/Off"
+      ></v-switch>
+  </div>
 </template>
 
-<script>
+<script lang="ts">
 console.log('panel opened');
+
+// Listen for any controlPanel/settings changes
+/*
+import * as dataDefinitions from '../../../shared/dataDefinitions';
+let currentSettings: dataDefinitions.controlPanel = {
+  on: false,
+  runId: '',
+  smokerSetTemp: 0,
+};
+*/
+
+
 export default {
   data: function() {
     return {
