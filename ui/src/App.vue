@@ -6,7 +6,7 @@
       clipped
     >
       <v-list dense>
-        <v-list-item link>
+        <v-list-item link @click="display = 'status'">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
@@ -14,7 +14,7 @@
             <v-list-item-title>Status</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link @click="display = 'controlPanel'">
           <v-list-item-action>
             <v-icon>mdi-settings</v-icon>
           </v-list-item-action>
@@ -39,59 +39,49 @@
         fluid
       >
         <v-row
-          align="center"
           justify="center"
         >
-          <v-col class="shrink">
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  :href="source"
-                  icon
-                  large
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-code-tags</v-icon>
-                </v-btn>
-              </template>
-              <span>Source</span>
-            </v-tooltip>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  large
-                  href="https://codepen.io/johnjleider/pen/bXNzZL"
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-codepen</v-icon>
-                </v-btn>
-              </template>
-              <span>Codepen</span>
-            </v-tooltip>
+          <v-col class="grow">
+
+
+            <div v-if="display === 'status'">
+              <status/>
+            </div>
+
+            <div v-if="display === 'controlPanel'">
+              <controlPanel/>
+            </div>
+
+
           </v-col>
         </v-row>
       </v-container>
     </v-content>
 
     <v-footer app>
-      <span>&copy; 2019</span>
+      <span>&copy; 2020</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
+  import controlPanel from './components/controlPanel.vue'
+  import status from './components/status.vue'
   export default {
     props: {
       source: String,
     },
     data: () => ({
       drawer: null,
+      // indicates which of the display modes we are in. 'status' will show the runtime status screen, 'controlPanel' will show the settings
+      display: 'status'
     }),
     created () {
       this.$vuetify.theme.dark = true
     },
+    components: {
+      'controlPanel': controlPanel,
+      'status': status,
+    }
   }
 </script>

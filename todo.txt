@@ -18,3 +18,8 @@
 
 - Figure out how to initialize the props in the data definitions to defaults in the dataDefinitions file. otherwise every time
 you add a new measurement or something you need to initialize it in the places in the client/server/ui code that are creating one
+
+- May want to move some of the UI assets from CDN to just on the pi? Probably not though, the browser should be running on a machine that has full internet access
+- logos
+
+Next steps:
