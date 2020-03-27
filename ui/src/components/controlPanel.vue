@@ -1,11 +1,12 @@
 <template>
   <div>
-    <p> I'm the controlPanel </p>
+    <p>I'm the controlPanel</p>
     <v-divider></v-divider>
     <v-switch
-        v-model="onOff"
-        :label="`Power: ${onOff ? 'On' : 'Off'}`"
+        v-model="on"
+        :label="`Power: ${on ? 'On' : 'Off'}`"
       ></v-switch>
+      <v-divider></v-divider>
   </div>
 </template>
 
@@ -13,44 +14,58 @@
 console.log('panel opened');
 
 import * as dataDefinitions from '../../../shared/dataDefinitions'; // eslint-disable-line no-unused-vars
-let currentSettings: dataDefinitions.controlPanel = {
+const currentSettings: dataDefinitions.controlPanel = {
   on: false,
   runId: '',
   smokerSetTemp: 0,
 };
 
 
+
 export default {
+ 
+  // exports the properties that are bound to the UI of the component
   data: function() {
-    return {
-      onOff: currentSettings.on,
-    }
+    return currentSettings
   },
+  
+  // called when the component is loaded
   created: function() {
+    
+    // make the connection to the server here? (or maybe outside of the component?)
+    // Might be good to have some sort of indicator on these to show if connected to the server or not.
+    // maybe could put that in the main component though
     console.log("created called");
     setInterval( () => {
       console.log("interval called");
       this.updateSettings();
     }, 10000);
-
   },
+  
+  // The methods available to the component
   methods: {
     updateSettings() {
       console.log("update settings called")
-      this.onOff = !this.onOff;
+      this.on = !this.on;
     },
-
   },
-  watch: {
-    onOff: (val) => {
-      console.log('on/off changed', val);
 
-      // It is not directly updating current settings. The state is only held in the onOff value in data
-      // Looks like it might be best to just have data values for each of the things (runid, on, temp)
-      // and watch for changes on them and then save to server as they change
-      console.log('currentSettings:', currentSettings)
-    }
+  // called when the bound properties change so we can make the update on the server
+  watch: {
+    // watch for any of our data values changing. Just watching them all so we don't need
+    // to add an explicit watcher for each setting property when more are added to the 
+    // controlPanel dataDefinition
+    $data: {
+      handler: function(newSettings, oldSettings)  {
+        // This is called both when the user makes a change in the UI as well as when
+        // we make a change to the data from the background/server. Will need to detect that
+        // and handle it so we don't keep bouncing to the server
+        console.log('old setting', oldSettings, 'new setting', newSettings);        
+      },
+      deep: true
+    },
   } 
-  // can we do props here too? Like passing in a URL or something?
+  // can we do props here too? Like passing in a URL or something? Not yet really sure if I want the server update logic to live
+  // inside the component or outside of it though
 }
 </script>
