@@ -23,9 +23,24 @@ let currentSettings: dataDefinitions.controlPanel = {
 export default {
   data: function() {
     return {
-      onOff: currentSettings.on
+      onOff: currentSettings.on,
     }
-  }, 
+  },
+  created: function() {
+    console.log("created called");
+    setInterval( () => {
+      console.log("interval called");
+      this.updateSettings();
+    }, 10000);
+
+  },
+  methods: {
+    updateSettings() {
+      console.log("update settings called")
+      this.onOff = !this.onOff;
+    },
+
+  },
   watch: {
     onOff: (val) => {
       console.log('on/off changed', val);
