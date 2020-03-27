@@ -67,6 +67,9 @@
 <script>
   import controlPanel from './components/controlPanel.vue'
   import status from './components/status.vue'
+  import serverApi from './serverApi.ts'
+
+  
   export default {
     props: {
       source: String,
@@ -77,7 +80,9 @@
       display: 'status'
     }),
     created () {
-      this.$vuetify.theme.dark = true
+      this.$vuetify.theme.dark = true;
+      serverApi.connect();
+
     },
     components: {
       'controlPanel': controlPanel,
