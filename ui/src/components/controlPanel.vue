@@ -7,6 +7,13 @@
         :label="`Power: ${on ? 'On' : 'Off'}`"
       ></v-switch>
       <v-divider></v-divider>
+      <v-slider
+        v-model="smokerSetTemp"
+        :label="`Smoker Set Temp`"
+        thumb-label="always"
+        :max=400
+        :min=200>
+        </v-slider>
   </div>
 </template>
 
@@ -17,7 +24,7 @@ import * as dataDefinitions from '../../../shared/dataDefinitions'; // eslint-di
 const currentSettings: dataDefinitions.controlPanel = {
   on: false,
   runId: '',
-  smokerSetTemp: 0,
+  smokerSetTemp: 225,
 };
 
 
@@ -36,10 +43,13 @@ export default {
     // Might be good to have some sort of indicator on these to show if connected to the server or not.
     // maybe could put that in the main component though
     console.log("created called");
+    
+    /* Just some temporary stuff for testing how to react to changes from the server
     setInterval( () => {
       console.log("interval called");
       this.updateSettings();
     }, 10000);
+    */
   },
   
   // The methods available to the component
@@ -59,7 +69,9 @@ export default {
       handler: function(newSettings, oldSettings)  {
         // This is called both when the user makes a change in the UI as well as when
         // we make a change to the data from the background/server. Will need to detect that
-        // and handle it so we don't keep bouncing to the server
+        // and handle it so we don't keep bouncing the settings to the server
+
+        // Might need a debounce on this. When dragging the slider it calls back a ton
         console.log('old setting', oldSettings, 'new setting', newSettings);        
       },
       deep: true
