@@ -6,6 +6,12 @@ import * as dataDefinitions from '../../shared/dataDefinitions';
 const serverRootUrl = `http://localhost:3001`;
 console.log(`Connecting to: ${serverRootUrl}`);
 
+let currentSettings: dataDefinitions.controlPanel = {
+  on: false,
+  runId: '',
+  smokerSetTemp: 350,
+};
+
 
 const socket = io(serverRootUrl, {autoConnect: false});
 socket.on('connect', function() {
@@ -29,6 +35,7 @@ socket.on('connect', function() {
 
 function handleSettings(newSettings: dataDefinitions.controlPanel) {
   console.log('handleSettings called', newSettings);
+  currentSettings = newSettings;
 }
 
 /*
@@ -46,6 +53,7 @@ export default {
   connected: false,
 
   // control panel w/ changed event?
+  controlPanel: currentSettings,
 
   // 
 }

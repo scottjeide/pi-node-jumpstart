@@ -49,7 +49,9 @@
             </div>
 
             <div v-if="display === 'controlPanel'">
-              <controlPanel/>
+              <controlPanel 
+                v-bind:initialSettings="controlPanel">
+              </controlPanel>
             </div>
 
 
@@ -77,7 +79,8 @@
     data: () => ({
       drawer: null,
       // indicates which of the display modes we are in. 'status' will show the runtime status screen, 'controlPanel' will show the settings
-      display: 'status'
+      display: 'status',
+      controlPanel: serverApi.controlPanel,
     }),
     created () {
       this.$vuetify.theme.dark = true;

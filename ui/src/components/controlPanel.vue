@@ -20,20 +20,15 @@
 <script lang="ts">
 console.log('panel opened');
 
-import * as dataDefinitions from '../../../shared/dataDefinitions'; // eslint-disable-line no-unused-vars
-const currentSettings: dataDefinitions.controlPanel = {
-  on: false,
-  runId: '',
-  smokerSetTemp: 225,
-};
-
 
 
 export default {
  
+  props: ['initialSettings'],
+
   // exports the properties that are bound to the UI of the component
   data: function() {
-    return currentSettings
+    return this.initialSettings;
   },
   
   // called when the component is loaded
