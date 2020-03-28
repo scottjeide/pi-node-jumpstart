@@ -56,7 +56,7 @@ const redis = new Redis({lazyConnect: true})
 const currentSettings: dataDefinitions.controlPanel = {
   on: false,
   runId: '',
-  smokerSetTemp: 240
+  smokerSetTemp: 250
 };
 
 expressApp.get('/controlPanel', (req, res) => {
