@@ -26,3 +26,6 @@ you add a new measurement or something you need to initialize it in the places i
 the main page, and then previous runs on a separate page. Not really necessary to switch pages to turn on/off and to look at current status
 
 Next steps:
+- rename controlPanel - just settings. ControlPanel contains a current settings, on/off and any other control switches and indicators?
+- maybe messages?
+- controlPanel is a single object that is the on/off, any other switches and indicators, and messages? I don't know. Still don't really know exactly what I want here
