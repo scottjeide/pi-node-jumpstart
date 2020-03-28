@@ -1,10 +1,11 @@
 <template>
   <v-app id="inspire">
+    <!-- 
     <v-navigation-drawer
       v-model="drawer"
       app
       clipped
-    >
+    >      
       <v-list dense>
         <v-list-item link @click="display = 'status'">
           <v-list-item-action>
@@ -24,40 +25,71 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+    not sure I'm going to use the drawer, but leaving it here for a bit in case I change my mind -->
 
     <v-app-bar
       app
       clipped-left
     >
+      <!-- the old drawer openclose
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      -->
       <v-toolbar-title>Pi Controller</v-toolbar-title>
+      <!-- Could put a start/stop button here on the title. That would make it always available at the top
+      <v-spacer></v-spacer>
+
+      <v-btn icon>
+        <v-icon>mdi-heart</v-icon>
+      </v-btn>
+
+      <v-btn icon>
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>      
+      -->
     </v-app-bar>
 
     <v-content>
-      <v-container
-        class="fill-height"
-        fluid
+      <v-expansion-panels
+        :accordion=true
+        :multiple=true
       >
-        <v-row
-          justify="center"
+        <v-expansion-panel
+          :isActive=true
         >
-          <v-col class="grow">
+          <v-expansion-panel-header>Status</v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <p>some buttons and current message. Should pin this one open</p>
+            <!-- start/stop buttons?, running or not running, current settings, last N messages -->
+          </v-expansion-panel-content>
+        </v-expansion-panel>
 
+        <v-expansion-panel>
+          <v-expansion-panel-header>Change Settings</v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <p>Settings</p>
+            <v-switch
+              v-model="on"
+              :label="`Power: ${on ? 'On' : 'Off'}`"
+            ></v-switch>
+            <v-divider></v-divider>
+            <v-slider
+              v-model="smokerSetTemp"
+              :label="`Smoker Set Temp`"
+              thumb-label="always"
+              :max=400
+              :min=200>
+              </v-slider>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
 
-            <div v-if="display === 'status'">
-              <status/>
-            </div>
+        <v-expansion-panel>
+          <v-expansion-panel-header>Data</v-expansion-panel-header>
+          <v-expansion-panel-content>
+            The pretty graphs
+          </v-expansion-panel-content>
+        </v-expansion-panel>
 
-            <div v-if="display === 'controlPanel'">
-              <controlPanel 
-                v-bind:initialSettings="controlPanel">
-              </controlPanel>
-            </div>
-
-
-          </v-col>
-        </v-row>
-      </v-container>
+      </v-expansion-panels>
     </v-content>
 
     <v-footer app>
@@ -67,8 +99,6 @@
 </template>
 
 <script lang="ts">
-  import controlPanel from './components/controlPanel.vue'
-  import status from './components/status.vue'
   //import serverApi from './serverApi.ts'
 
 
@@ -156,8 +186,6 @@ created: function() {
 
 
     components: {
-      'controlPanel': controlPanel,
-      'status': status,
     }
   }
 </script>
