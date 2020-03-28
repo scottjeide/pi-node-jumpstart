@@ -66,27 +66,95 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
   import controlPanel from './components/controlPanel.vue'
   import status from './components/status.vue'
-  import serverApi from './serverApi.ts'
+  //import serverApi from './serverApi.ts'
 
+
+
+  import io from 'socket.io-client';
+  import * as dataDefinitions from '../../shared/dataDefinitions'; // eslint-disable-line no-unused-vars
+
+  const serverRootUrl = `http://localhost:3001`;
+  console.log(`Connecting to: ${serverRootUrl}`);
+
+  let currentSettings: dataDefinitions.controlPanel = {
+    on: false,
+    runId: '',
+    smokerSetTemp: 350,
+  };
+
+
+  // probably can fix the this context by binding appropriately, but hack it for now. Nope, still doesn't work. Not sure things are cascading to child controls the way I expected
+  let me = null;
   
   export default {
     props: {
       source: String,
     },
+
+
+
     data: () => ({
       drawer: null,
       // indicates which of the display modes we are in. 'status' will show the runtime status screen, 'controlPanel' will show the settings
       display: 'status',
-      controlPanel: serverApi.controlPanel,
+      controlPanel: currentSettings,
     }),
+
+
+
     created () {
       this.$vuetify.theme.dark = true;
-      serverApi.connect();
+      
+      const socket = io(serverRootUrl);
 
+      me = this;
+      // probably will need to bind this in these callbacks
+      socket.on('connect', function() {
+        console.log('socket is connected');
+
+        // Read the current settings - any changes will come through the socket message. Reading them
+        // here in order to pick up any settings that might have been made while we were disconnected
+        fetch(`${serverRootUrl}/controlPanel`)
+          .then((res: { json: () => any; }) => res.json())
+          .then((settings: dataDefinitions.controlPanel) => {
+            console.log('Read initial controlPanel from server', settings);
+            me.handleSettings(settings);
+          });
+
+      })
+      .on('io:controlPanel', (data) => {
+        const settings: dataDefinitions.controlPanel = data.msg;
+        console.log('got updated settings from the server', settings);
+        me.handleSettings(settings);
+      });
     },
+
+    methods: {
+      handleSettings(newSettings: dataDefinitions.controlPanel) {
+        console.log('handleSettings called', newSettings);
+        me.controlPanel = {...newSettings};
+      }
+    },
+/*
+created: function() {
+    console.log("created called");
+    setInterval( () => {
+      console.log("interval called");
+      this.updateSettings();
+    }, 10000);
+
+  },
+  methods: {
+    updateSettings() {
+      console.log("update settings called")
+      this.onOff = !this.onOff;
+    },
+*/
+
+
     components: {
       'controlPanel': controlPanel,
       'status': status,

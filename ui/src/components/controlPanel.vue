@@ -28,6 +28,21 @@ export default {
 
   // exports the properties that are bound to the UI of the component
   data: function() {
+
+    // maybe don't return it here - just use a direct object
+
+
+
+
+
+
+
+
+
+
+
+
+    
     return this.initialSettings;
   },
   
