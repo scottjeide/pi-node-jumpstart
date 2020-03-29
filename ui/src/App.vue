@@ -127,7 +127,6 @@
     },
 
 
-
     data: () => ({
       currentSettings: defaultSettings,
       newSettings: defaultSettings,
@@ -137,17 +136,22 @@
         labels: [],
         datasets: [
           {
-            label: 'Client Messages',
-            backgroundColor: '#f87979',
-            borderColor:  '#f87979',
+            label: 'Smoker Temp',
+            backgroundColor: '#FF0033',
+            borderColor:  '#FF0033',
+            data: [],
+            fill: false,
+          },
+          {
+            label: 'Meat Temp',
+            backgroundColor: '#0033FF',
+            borderColor:  '#0033FF',
             data: [],
             fill: false,
           }
         ]
       },
     }),
-
-
 
     created () {
       self = this;
@@ -191,13 +195,26 @@
 
         self.messageText = self.messages.join("\n");
       })
+
+      // watch for the measurements
+      .on('io:measurement', (data) => {
+        const measurement: dataDefinitions.measurement = data.msg;
+        console.log('got new measurement', measurement);
+
+        // TODO: need to find something better for label. Maybe just a tick every minute or something?
+        // a label per datapoint is really messy
+        const now = new Date();
+        self.addData(now.toString(), measurement);
+      })
       ;
     },
 
     methods: {
-      addData: (label, value) => {
+      addData: (label, measurement:dataDefinitions.measurement) => {            
         self.chartData.labels.push(label);
-        self.chartData.datasets[0].data.push(value);
+
+        self.chartData.datasets[0].data.push(measurement.smokerTemp);
+        self.chartData.datasets[1].data.push(measurement.meatTemp);
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
         self.chartData = {...self.chartData}
       },
