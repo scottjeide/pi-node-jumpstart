@@ -47,7 +47,18 @@
               readonly
               :outlined=true
             ></v-text-field>
+            
+            <v-textarea
+              readonly
+              :outlined=true
+              label="Messages"
+              placeholder=" "
+              v-model="messageText"
+
+            >
+            </v-textarea>
             <!-- start/stop buttons?, running or not running, current settings, last N messages -->
+
           </v-expansion-panel-content>
         </v-expansion-panel>
 
@@ -98,6 +109,15 @@
   };
 
 
+
+
+
+  // Next steps: Add the messages and the data (maybe make some timers on the server or client just generate some)
+
+
+
+
+
   let self = null;
   
   export default {
@@ -108,11 +128,10 @@
 
 
     data: () => ({
-      //drawer: null,
-      // indicates which of the display modes we are in. 'status' will show the runtime status screen, 'controlPanel' will show the settings
-      //display: 'status',
       currentSettings: defaultSettings,
       newSettings: defaultSettings,
+      messageText: "",
+      messages: [],
     }),
 
 
@@ -121,7 +140,12 @@
       self = this;
 
       this.$vuetify.theme.dark = true;
-      
+
+      function handleServerSettings(serverSettings: dataDefinitions.controlPanel) {
+        console.log('handleSettings called', serverSettings);
+        self.currentSettings = {...serverSettings};
+      }
+
       const socket = io(serverRootUrl);
       socket.on('connect', function() {
         console.log('socket is connected');
@@ -131,23 +155,33 @@
           .then((res: { json: () => any; }) => res.json())
           .then((settings: dataDefinitions.controlPanel) => {
             console.log('Read initial controlPanel from server', settings);
-            self.handleServerSettings(settings);
+            handleServerSettings(settings);
           });
-
       })
-      // Pick up any changes a different client might be making to the settings
+      
+      // Pick up any changes a different client might be making to the current settings
       .on('io:controlPanel', (data) => {
         const settings: dataDefinitions.controlPanel = data.msg;
         console.log('got updated settings from the server', settings);
-        self.handleServerSettings(settings);
-      });
+        handleServerSettings(settings);
+      })
+      
+      // Watch for any runtime messages
+      .on('io:runtimeMessage', (data) => {
+        const message: dataDefinitions.runtimeMessage = data.msg;
+        console.log('got new runtime message', message.text);
+
+        self.messages.unshift(message.text);
+        if (self.messages.length > 10) {
+          self.messages.pop();
+        }
+
+        self.messageText = self.messages.join("\n");
+      })
+      ;
     },
 
     methods: {
-      handleServerSettings(serverSettings: dataDefinitions.controlPanel) {
-        console.log('handleSettings called', serverSettings);
-        self.currentSettings = {...serverSettings};
-      }
     },
 
   }
