@@ -56,7 +56,7 @@ const redis = new Redis({lazyConnect: true})
 const currentSettings: dataDefinitions.controlPanel = {
   on: false,
   runId: '',
-  smokerSetTemp: 250
+  smokerSetTemp: 260
 };
 
 expressApp.get('/controlPanel', (req, res) => {
@@ -163,6 +163,8 @@ socketIo.on('connection', function(socket){
   console.log('Got new client connection');
 //  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
+  // TODO: May not even need to watch for this one on the server. Clients will be posting to the rest api to add messages, not here
+ 
   socket.on('io:runtimeMessage', function(msg: dataDefinitions.runtimeMessage){
     console.log('Got runtimeMessage:', msg);
 

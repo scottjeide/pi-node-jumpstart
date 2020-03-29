@@ -26,6 +26,12 @@ you add a new measurement or something you need to initialize it in the places i
 the main page, and then previous runs on a separate page. Not really necessary to switch pages to turn on/off and to look at current status
 
 Next steps:
-- rename controlPanel - just settings. ControlPanel contains a current settings, on/off and any other control switches and indicators?
-- maybe messages?
-- controlPanel is a single object that is the on/off, any other switches and indicators, and messages? I don't know. Still don't really know exactly what I want here
+- On controlPanel
+  - rename controlPanel - just settings. ControlPanel contains a current settings, on/off and any other control switches and indicators?
+  - maybe messages?
+  - controlPanel is a single object that is the on/off, any other switches and indicators, and messages? I don't know. Still don't really know exactly what I want here
+  - currentSettings is the only endpoint that will broadcast over the socket. Other settings can just be loaded/saved (eventually)
+  - controlPanel could just be a UI concept that can be used to change the currentSettings (on/off, control switches, etc) and display messages or status?
+  - Maybe have a status that goes from client to server? current measurements or pin readings?
+  
+
