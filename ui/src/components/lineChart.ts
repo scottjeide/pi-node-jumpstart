@@ -31,9 +31,7 @@ const chartOptions = {
           }
       }
   },
-  responsive: true,
-  maintainAspectRatio: false,
-  height: 200
+  responsive: true
 }
 
 export default {

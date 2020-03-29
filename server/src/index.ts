@@ -54,7 +54,7 @@ const redis = new Redis({lazyConnect: true})
 
 // Set up the controlPanel api handlers
 const currentSettings: dataDefinitions.controlPanel = {
-  on: false,
+  on: true,
   runId: '',
   smokerSetTemp: 260
 };
