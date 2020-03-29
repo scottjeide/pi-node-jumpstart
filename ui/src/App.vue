@@ -82,7 +82,7 @@
         <v-expansion-panel>
           <v-expansion-panel-header>Data</v-expansion-panel-header>
           <v-expansion-panel-content>
-            The pretty graphs
+            <lineChart :chartData="chartData"/>
           </v-expansion-panel-content>
         </v-expansion-panel>
 
@@ -98,6 +98,7 @@
 <script lang="ts">
   import io from 'socket.io-client';
   import * as dataDefinitions from '../../shared/dataDefinitions'; // eslint-disable-line no-unused-vars
+  import lineChart from './components/lineChart';
 
   const serverRootUrl = `http://localhost:3001`;
   console.log(`Connecting to: ${serverRootUrl}`);
@@ -131,7 +132,19 @@
       currentSettings: defaultSettings,
       newSettings: defaultSettings,
       messageText: "",
-      messages: [],
+      messages: [],      
+      chartData: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Client Messages',
+            backgroundColor: '#f87979',
+            borderColor:  '#f87979',
+            data: [],
+            fill: false,
+          }
+        ]
+      },
     }),
 
 
@@ -182,7 +195,18 @@
     },
 
     methods: {
+      addData: (label, value) => {
+        self.chartData.labels.push(label);
+        self.chartData.datasets[0].data.push(value);
+        // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
+        self.chartData = {...self.chartData}
+      },
+
     },
+
+    components: {
+      'lineChart': lineChart,
+    }
 
   }
 </script>
