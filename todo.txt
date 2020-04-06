@@ -7,32 +7,43 @@
 - automatically start redis-server when the server launches if not already running?
     - redis-server on my mac is what I use
 - Does it even make sense to namespace the socket message channels with io:? Could just make it one-to-one with the rest apis
-- typescript 
-  https://code.visualstudio.com/docs/typescript/typescript-compiling
-  - run 'npx tsc' from the server directory to build, or I just installed it globally (npm install -g typescript)
   
 - Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
-- Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly
+- Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly in the rest endpoint
 - clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic
-- Would be nice to switch the tsc options to create a single output file if could figure it output
+- Would be nice to switch the tsc options to create a single output file if could figure it out
 
-- Figure out how to initialize the props in the data definitions to defaults in the dataDefinitions file. otherwise every time
-you add a new measurement or something you need to initialize it in the places in the client/server/ui code that are creating one
 
 - May want to move some of the UI assets from CDN to just on the pi? Probably not though, the browser should be running on a machine that has full internet access
 - logos
 
-- Not sure I really like the two different tabs on the UI. Might be cleaner with them all on a single page. Maybe just control panel and status together on 
-the main page, and then previous runs on a separate page. Not really necessary to switch pages to turn on/off and to look at current status
 
 Next steps:
-- Get the chart component in place and dynamically updating
-- On controlPanel
+- On controlPanel. I don't really like how this interacts with the UI, and it doesn't really make that much sense
   - rename controlPanel - just settings. ControlPanel contains a current settings, on/off and any other control switches and indicators?
   - maybe messages?
   - controlPanel is a single object that is the on/off, any other switches and indicators, and messages? I don't know. Still don't really know exactly what I want here
   - currentSettings is the only endpoint that will broadcast over the socket. Other settings can just be loaded/saved (eventually)
   - controlPanel could just be a UI concept that can be used to change the currentSettings (on/off, control switches, etc) and display messages or status?
-  - Maybe have a status that goes from client to server? current measurements or pin readings?
+  - Maybe have a status that goes from client to server? current measurements or pin readings? Yes, that would be helpful I think. Show the current measurements for everything and show a couple of switches that can change things.
+  - Maybe just have the currentSettings (not save any others) and make it dynamically adjust like I started out with?
+  - Split out settings and controls. ControlPanel has both?
+- Figure out how to initialize the props in the data definitions to defaults in the dataDefinitions file. otherwise every time
+you add a new measurement or something you need to initialize it in the places in the client/server/ui code that are creating one
 
+- Clean up the chart labels. Labeling every single point with full date/time isn't going to work
+- Times of things should be controlled by server? Maybe both client and server?
 
+- Still not sure I like the accordian stuff on the UI. Just show them all as cards/panes and have them always visible? Maybe the spot where you configure new settings doesn't need to be always visible though
+- Have the server serve up the UI build rather than having to run that as a separate server. Maybe make the build of the UI project copy it into the server www directory (and mark it as git ignore)
+- overall build script that builds everything from the root
+- pi install script? Something that would install and set up redis?
+- Actually test it on a pi with some real measurements - better example than smoker and makes more sense to document/blog that. Maybe wifi strength, download speed, ping time, or something like that. Settings to configure poll intervals and what it will ping
+- Clean up logs & typescript. Replace fetch promises with await. Can we bind the socket .on calls with a this so can clean up the self stuff?
+- add a temperature probe? Just to give it something real to measure? There's a built-in way to measure the cpu temp
+- rather than a separate settings area, just make the controlPanel live. Disable the other controls when the system is off. Maybe just a go/stop button since you aren't actually turning it on
+
+- Update the readme, add the appropriate tags, make sure the repo is public (can't remember if I made it that way)
+- blog it!
+
+- load previous runs and chart them
