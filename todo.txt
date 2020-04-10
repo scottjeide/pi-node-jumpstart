@@ -19,17 +19,11 @@
 
 
 Next steps:
-- On controlPanel. I don't really like how this interacts with the UI, and it doesn't really make that much sense
-  - rename controlPanel - just settings. ControlPanel contains a current settings, on/off and any other control switches and indicators?
-  - maybe messages?
-  - controlPanel is a single object that is the on/off, any other switches and indicators, and messages? I don't know. Still don't really know exactly what I want here
-  - currentSettings is the only endpoint that will broadcast over the socket. Other settings can just be loaded/saved (eventually)
-  - controlPanel could just be a UI concept that can be used to change the currentSettings (on/off, control switches, etc) and display messages or status?
-  - Maybe have a status that goes from client to server? current measurements or pin readings? Yes, that would be helpful I think. Show the current measurements for everything and show a couple of switches that can change things.
-  - Maybe just have the currentSettings (not save any others) and make it dynamically adjust like I started out with?
-  - Split out settings and controls. ControlPanel has both?
-- Figure out how to initialize the props in the data definitions to defaults in the dataDefinitions file. otherwise every time
-you add a new measurement or something you need to initialize it in the places in the client/server/ui code that are creating one
+- Create a controlPanel top section in the UI. 
+  - Props are what comes from the server, data is what they are actively tweaking. 
+  - Enable Apply button when they are different, maybe add a cancel. Put on apply
+  - Put the messages in there too (at least the last handful of messages)
+
 
 - Clean up the chart labels. Labeling every single point with full date/time isn't going to work
 - Times of things should be controlled by server? Maybe both client and server?

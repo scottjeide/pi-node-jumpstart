@@ -52,30 +52,19 @@ const redis = new Redis({lazyConnect: true})
 
 
 
-// Set up the controlPanel api handlers
-const currentSettings: dataDefinitions.controlPanel = {
-  on: true,
-  runId: '',
-  smokerSetTemp: 260
-};
+// Set up the settings api handlers
+const currentSettings = dataDefinitions.defaultSettings;
 
-expressApp.get('/controlPanel', (req, res) => {
+expressApp.get('/settings', (req, res) => {
   res.send(currentSettings);
 });
-expressApp.post('/controlPanel', (req, res) => {
-  const newSettings: dataDefinitions.controlPanel = {...req.body};
+expressApp.post('/settings', (req, res) => {
+  const newSettings: dataDefinitions.settings = {...req.body};
   
-  console.log('Received new controlPanel setting', newSettings);
-
-  // the server controls the runId property
-  if (newSettings.on && !currentSettings.on) {
-    // starting a new run so create a new rid
-    newSettings.runId = (new Date).toString();
-    console.log(`Starting new runId: ${newSettings.runId}`);
-  }
-  else {
-    delete newSettings.runId;
-  }
+  console.log('Received new settings', newSettings);
+  
+  // give this settings change a new id
+  newSettings.id = (new Date).toString();
 
   for (let prop in currentSettings) {
     if (newSettings.hasOwnProperty(prop)) {
@@ -83,21 +72,22 @@ expressApp.post('/controlPanel', (req, res) => {
     }
   }
   
-  // Save off the runid in the db
-  const dbRes = redis.set(`runId:${currentSettings.runId}`, JSON.stringify(currentSettings));
-  console.log(`Saved runId, res: ${dbRes}`);
+  // Save off the settings in the db
+  const dbRes = redis.set(`settingsId:${currentSettings.id}`, JSON.stringify(currentSettings));
+  console.log(`Saved new settings, res: ${dbRes}`);
 
   // echo it back on the post request response
   res.send(currentSettings);
 
   // and broadcast it on the socket
-  socketIo.emit('io:controlPanel', {emit: true, msg: currentSettings});
+  socketIo.emit('io:settings', {emit: true, msg: currentSettings});
 });
 
 
 // The measurement api handlers
 expressApp.get('/measurement', (req, res) => {
-  //res.send(dataDefinitions.controlPanel);
+  // TODO: Finish this - want to be able to have the UI load measurements from the past
+  console.log('GET /measurement called')
 });
 expressApp.post('/measurement', (req, res) => {
   const clientMeasurement: dataDefinitions.measurement = {...req.body};
@@ -114,7 +104,7 @@ expressApp.post('/measurement', (req, res) => {
       // to write them as separate measurements measurement:runid:measurementName to query them individually
 
       const dbRet = redis.xadd(
-        'measurement:' + currentSettings.runId, 
+        'measurement:' + currentSettings.id, 
         '*', 
         prop, clientMeasurement[prop], 
         'time', now.toString()
@@ -132,7 +122,8 @@ expressApp.post('/measurement', (req, res) => {
 
 // The message api handlers
 expressApp.get('/runtimeMessage', (req, res) => {
-  //res.send(dataDefinitions.controlPanel);
+  // TODO: Finish this - want to be able to have the UI load older messages
+  console.log('GET /runtimeMessage called')
 });
 expressApp.post('/runtimeMessage', (req, res) => {
   const runtimeMessage: dataDefinitions.runtimeMessage = {...req.body};
@@ -142,7 +133,7 @@ expressApp.post('/runtimeMessage', (req, res) => {
   const now = new Date();
 
   const dbRet = redis.xadd(
-    'runtimeMessage:' + currentSettings.runId, 
+    'runtimeMessage:' + currentSettings.id, 
     '*', 
     'text', runtimeMessage.text,
     'time', now.toString()

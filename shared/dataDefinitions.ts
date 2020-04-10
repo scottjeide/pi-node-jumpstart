@@ -1,30 +1,44 @@
 
-// This defines the data objects used by the client/server and stored in the DB
+/**
+ * dataDefinitions describes the data objects used by the client/server and stored in the DB 
+ */
+
 
 /**
- * The controlPanel is the main object that contains the settings for the run.
- * If you need additional settings, add them here.
+ * settings is the main object that contains the on/off switches and any other settings
+ * that control the pi
  * 
- * The example below is what some settings for a temperature controller for a smoker might use.
- * These are set by the UI by POSTing a controlPanel object to the rest endpoint /controlPanel
+ * These are set by the UI by POSTing a settings object to the rest endpoint /settings
  * 
- * Anytime a new controlPanel object is written, it will be broadcast on the socket
- * io:controlPanel so the clients can turn on/off or adjust their settings. 
+ * Anytime a new settings object is written, it will be broadcast on the socket
+ * io:settings so the clients can react to any changes
  */
-interface controlPanel {
+interface settings {
 
-  // indicates if we are running or not. Clients can set this on/off to switch the system on or off
+  // the current settings identifier. Set/updated by the server any time the settings are changed
+  id: string,
+
+  // The on/off switch
   on: boolean,
 
-  // the current run identifier (when the system is ON). Set by the server when the system is turned on
-  runId: string,
+  // How frequently we should run the checks (in seconds)
+  checkInterval: number,
 
-  // the desired smoker temp (in degrees C)
-  smokerSetTemp: number,
-
-  // Could also set low/high meat and smoker alert thresholds
+  // The url we'll check every interval
+  checkUrl: string,
 };
 
+/**
+ * The settings defaults used by the various components until they can load the current values
+ * from the server/db.
+ * These should be the safe defaults to use when things startup/reboot/etc
+ */ 
+const defaultSettings: settings = {
+  id: '',
+  on: false,
+  checkInterval: 10,
+  checkUrl: 'https://www.google.com',
+}
 
 
 /**
@@ -32,22 +46,20 @@ interface controlPanel {
  * 
  * Measurements can be read via GETs to the /measurement rest endpoint
  * /measurement gets them all
- * /measurement/run-id to get them all for a given run
- * /measurement/run-id/<measurementName> to get all of the given measurements for a run
+ * /measurement/controlId to get all the measurements associated with the given control id
+ * /measurement/controlId/<measurementName> to get all of the given measurements for a run
  * 
- * Post a measurement object to /measurement to log a new measurement for the current run.
- * Not all measurement properties need to be in the given measurement object. Whatever properties are filled in
- * will be logged.
+ * Post a measurement object to /measurement to log a new measurement
+ * Not all measurement properties need to be in the given measurement object, whatever properties
+ * are filled in will be logged.
  * 
  * Anytime a measurement is written, it will also be broadcast through the socket io:measurement. 
  */
 interface measurement {
-  smokerTemp?: number;
-  meatTemp?: number;
+  responseTime?: number;
   batteryLevel?: number;
   wifiStrength?: number;
 }
-
 
 
 
@@ -61,7 +73,8 @@ interface runtimeMessage {
 }
 
 export {
-  controlPanel,
+  settings,
+  defaultSettings,
   measurement,
-  runtimeMessage
+  runtimeMessage,
 }

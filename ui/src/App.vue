@@ -6,7 +6,7 @@
       clipped-left
     >
       <v-toolbar-title>Pi Controller</v-toolbar-title>
-      <!-- Could put a on/off button here on the title. That would make it always available at the top? Either that or just make a fixed panel at the top that has the status/controlPanel
+      <!-- Could put a on/off button here on the title. That would make it always available at the top? Either that or just make a fixed panel at the top that has the status + settings
       <v-spacer></v-spacer>
 
       <v-btn icon>
@@ -103,11 +103,7 @@
   const serverRootUrl = `http://localhost:3001`;
   console.log(`Connecting to: ${serverRootUrl}`);
 
-  const defaultSettings: dataDefinitions.controlPanel = {
-    on: false,
-    runId: '',
-    smokerSetTemp: 350,
-  };
+  const defaultSettings = dataDefinitions.defaultSettings;
 
 
 
@@ -158,7 +154,7 @@
 
       this.$vuetify.theme.dark = true;
 
-      function handleServerSettings(serverSettings: dataDefinitions.controlPanel) {
+      function handleServerSettings(serverSettings: dataDefinitions.settings) {
         console.log('handleSettings called', serverSettings);
         self.currentSettings = {...serverSettings};
       }
@@ -168,17 +164,17 @@
         console.log('socket is connected');
 
         // Grab the current settings
-        fetch(`${serverRootUrl}/controlPanel`)
+        fetch(`${serverRootUrl}/settings`)
           .then((res: { json: () => any; }) => res.json())
-          .then((settings: dataDefinitions.controlPanel) => {
-            console.log('Read initial controlPanel from server', settings);
+          .then((settings: dataDefinitions.settings) => {
+            console.log('Read initial settings from server', settings);
             handleServerSettings(settings);
           });
       })
       
       // Pick up any changes a different client might be making to the current settings
-      .on('io:controlPanel', (data) => {
-        const settings: dataDefinitions.controlPanel = data.msg;
+      .on('io:settings', (data) => {
+        const settings: dataDefinitions.settings = data.msg;
         console.log('got updated settings from the server', settings);
         handleServerSettings(settings);
       })
@@ -213,8 +209,8 @@
       addData: (label, measurement:dataDefinitions.measurement) => {            
         self.chartData.labels.push(label);
 
-        self.chartData.datasets[0].data.push(measurement.smokerTemp);
-        self.chartData.datasets[1].data.push(measurement.meatTemp);
+        self.chartData.datasets[0].data.push(measurement.responseTime);
+
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
         self.chartData = {...self.chartData}
       },
