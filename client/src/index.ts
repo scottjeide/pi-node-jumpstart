@@ -16,13 +16,9 @@ const serverRootUrl = `http://${commandLine.server}:${commandLine.port}`;
 console.log(`Connecting to: ${serverRootUrl}`);
 
 
-// Listen for any controlPanel/settings changes
-let currentSettings: dataDefinitions.controlPanel = {
-  on: false,
-  runId: '',
-  smokerSetTemp: 0,
-};
+let currentSettings = dataDefinitions.defaultSettings;
 
+// Get connected to the server
 const socket = io(serverRootUrl)
 .on('connect', function() {
   console.log('socket is connected');
@@ -37,37 +33,45 @@ const socket = io(serverRootUrl)
 
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
-  fetch(`${serverRootUrl}/controlPanel`)
+  fetch(`${serverRootUrl}/settings`)
     .then((res: { json: () => any; }) => res.json())
-    .then((settings: dataDefinitions.controlPanel) => {
-      console.log('Read initial controlPanel from server', settings);
+    .then((settings: dataDefinitions.settings) => {
+      console.log('Read initial settings from server', settings);
       handleSettings(settings);
     });
 
 })
-.on('io:controlPanel', (data) => {
-  const settings: dataDefinitions.controlPanel = data.msg;
+.on('io:settings', (data) => {
+  const settings: dataDefinitions.settings = data.msg;
   console.log('got updated settings from the server', settings);
   handleSettings(settings);
 });
 
 let timer = null;
 /**
- * just a super basic timer for now to see if I can do some 'measurements' on an interval and report to the server
+ * just a super basic timer for now to see if I can do some measurements on an interval and report to the server
  * @param newSettings 
  */
-function handleSettings(newSettings: dataDefinitions.controlPanel) {
+function handleSettings(newSettings: dataDefinitions.settings) {
   if (newSettings.on && !currentSettings.on) {
     // start up the client
     if (timer == null) {
       timer = setInterval(() => {
-        const measurement: dataDefinitions.measurement = {
-          smokerTemp: Math.random(),
-          meatTemp: Math.random()
-        }
 
-        sendMeasurement(measurement);
-      }, 10000);
+        const startTime = new Date();
+        console.log(`fetching ${currentSettings.checkUrl}`);
+        fetch(currentSettings.checkUrl)
+        .then((res: { json: () => any; }) => res.json())
+        .then((settings: dataDefinitions.settings) => {
+          
+          const endTime = new Date();
+          console.log('got response');
+          const measurement: dataDefinitions.measurement = {
+            responseTime: (endTime.getTime() - startTime.getTime()),
+          }
+          sendMeasurement(measurement);
+        });
+      }, newSettings.checkInterval * 1000);
     }
   }
   else if (!newSettings.on && currentSettings.on) {
