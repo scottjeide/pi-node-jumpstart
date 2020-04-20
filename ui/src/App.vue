@@ -28,26 +28,38 @@
         <v-expansion-panel
           :isActive=true
         >
-          <v-expansion-panel-header>Status</v-expansion-panel-header>
+          <v-expansion-panel-header>Control Panel</v-expansion-panel-header>
           <v-expansion-panel-content>
             <v-switch
               v-model="currentSettings.on"
               :label="`Power: ${currentSettings.on ? 'On' : 'Off'}`"
             ></v-switch>
             <v-text-field
-              v-model="currentSettings.smokerSetTemp"
-              label="Smoker Target Temperature"
-              readonly
+              v-model.number="currentSettings.checkInterval"
+              label="Check Interval (in seconds)"
+              type="number"
               :outlined=true
             ></v-text-field>
             <v-text-field
-              v-model="currentSettings.runId"
-              label="Run ID"
-              placeholder=" "
-              readonly
+              v-model.trim="currentSettings.checkUrl"
+              label="URL to check"
               :outlined=true
             ></v-text-field>
-            
+
+            <v-text-field
+              v-model="currentSettings.id"
+              label="Settings ID"
+              placeholder=" "
+              readonly
+              disabled
+              :outlined=false
+            ></v-text-field>
+
+            <div class="my-2">
+              <!-- Make this enabled/disabled based on if new settings == currentSettings -->
+              <v-btn depressed color="primary">Apply</v-btn>
+            </div>              
+
             <v-textarea
               readonly
               :outlined=true
@@ -65,17 +77,6 @@
         <v-expansion-panel>
           <v-expansion-panel-header>Change Settings</v-expansion-panel-header>
           <v-expansion-panel-content>
-            <v-slider
-              v-model="newSettings.smokerSetTemp"
-              :label="`Smoker Set Temp`"
-              thumb-label="always"
-              :max=400
-              :min=200>
-              </v-slider>
-            <div class="my-2">
-              <!-- Make this enabled/disabled based on if new settings == currentSettings -->
-              <v-btn depressed color="primary">Apply</v-btn>
-            </div>              
           </v-expansion-panel-content>
         </v-expansion-panel>
 
@@ -99,20 +100,16 @@
   import io from 'socket.io-client';
   import * as dataDefinitions from '../../shared/dataDefinitions'; // eslint-disable-line no-unused-vars
   import lineChart from './components/lineChart';
+  import _ from 'lodash';
 
   const serverRootUrl = `http://localhost:3001`;
   console.log(`Connecting to: ${serverRootUrl}`);
 
-  const defaultSettings = dataDefinitions.defaultSettings;
-
-
-
-
+  
 
   // Next steps: Add the messages and the data (maybe make some timers on the server or client just generate some)
 
-
-
+  // dynamically add the labels based on the data definitions
 
 
   let self = null;
@@ -124,8 +121,15 @@
 
 
     data: () => ({
-      currentSettings: defaultSettings,
-      newSettings: defaultSettings,
+      
+      // serverSettings contains the latest know settings from the server
+      serverSettings: dataDefinitions.defaultSettings,
+
+      // currentSettings is whatever settings the UI is currently showing
+      currentSettings: dataDefinitions.defaultSettings,
+
+      settingsChanged: false,
+
       messageText: "",
       messages: [],      
       chartData: {
@@ -156,6 +160,7 @@
 
       function handleServerSettings(serverSettings: dataDefinitions.settings) {
         console.log('handleSettings called', serverSettings);
+        self.serverSettings = {...serverSettings};
         self.currentSettings = {...serverSettings};
       }
 
@@ -203,10 +208,12 @@
         self.addData(now.toString(), measurement);
       })
       ;
+
+      self.$watch('currentSettings', self.currentSettingsChanged, {deep: true});
     },
 
     methods: {
-      addData: (label, measurement:dataDefinitions.measurement) => {            
+      addData: (label, measurement:dataDefinitions.measurement) => {
         self.chartData.labels.push(label);
 
         self.chartData.datasets[0].data.push(measurement.responseTime);
@@ -214,6 +221,27 @@
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
         self.chartData = {...self.chartData}
       },
+
+      currentSettingsChanged: () => {
+
+/*
+            <!-- Note that the .trim and .number in the v-model bindings are pretty important so the underlying currentSettings object maintains
+            the right types and doesn't keep any extra whitespace on the strings. Might be good to add some type checking if possible
+            when we process the changes so I can remember what it's for. 
+            Rather than just using lodash's equal method, it might be better to manual grab keys & check types and values
+            so I can give a good log message to remind future me. At least for number and bool values
+            Or I could manually coerce the properties back to the proper type and just let the UI be a little less type loose
+            Or maybe even make the server coerce the types. That might even be better - could compare vs what we have in the default
+            settings object to infer the typescript types and maintain them. I think I'll probably do that
+            Plus I'd rather not pull in lodash too if I'm trying to keep this a relatively simple thing
+             -->
+             */
+
+
+          self.settingsChanged = !_.isEqual(self.currentSettings, self.serverSettings);
+
+          console.log("settings changed event", self.settingsChanged);
+      }
 
     },
 
