@@ -26,7 +26,7 @@ interface settings {
 
   // The url we'll check every interval
   checkUrl: string,
-};
+}
 
 /**
  * The settings defaults used by the various components until they can load the current values

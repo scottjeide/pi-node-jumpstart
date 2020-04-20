@@ -25,5 +25,6 @@
       "dom.iterable",
       "scripthost"
     ]
-  }
+  },
+  "files": ["**/*.ts"]
 }
