@@ -43,6 +43,9 @@ const redis = new Redis({lazyConnect: true})
 })
 .on('reconnecting', (ms) => {
   console.log(`Reconnecting to redis in ${ms} ms`);
+
+  // This is probably also worth logging a runtime message - if not to redis itself, at least broadcast it on the socket
+  
 }); 
 
 
