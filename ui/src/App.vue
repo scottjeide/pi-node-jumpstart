@@ -56,8 +56,7 @@
             ></v-text-field>
 
             <div class="my-2">
-              <!-- Make this enabled/disabled based on if new settings == currentSettings -->
-              <v-btn depressed color="primary">Apply</v-btn>
+              <v-btn depressed color="primary" :disabled="!settingsChanged" @click="saveSettings()">Apply</v-btn>
             </div>              
 
             <v-textarea
@@ -158,11 +157,6 @@
 
       this.$vuetify.theme.dark = true;
 
-      function handleServerSettings(serverSettings: dataDefinitions.settings) {
-        console.log('handleSettings called', serverSettings);
-        self.serverSettings = {...serverSettings};
-        self.currentSettings = {...serverSettings};
-      }
 
       const socket = io(serverRootUrl);
       socket.on('connect', function() {
@@ -173,7 +167,7 @@
           .then((res: { json: () => any; }) => res.json())
           .then((settings: dataDefinitions.settings) => {
             console.log('Read initial settings from server', settings);
-            handleServerSettings(settings);
+            self.handleServerSettings(settings);
           });
       })
       
@@ -181,7 +175,7 @@
       .on('io:settings', (data) => {
         const settings: dataDefinitions.settings = data.msg;
         console.log('got updated settings from the server', settings);
-        handleServerSettings(settings);
+        self.handleServerSettings(settings);
       })
       
       // Watch for any runtime messages
@@ -223,25 +217,43 @@
       },
 
       currentSettingsChanged: () => {
+         
+        /* Note: if you see settingsChanged being set to true when not expected, make sure the type of the settings aren't getting
+          * changed or extra whitespace being added. Be sure to add .trim and .number in the v-model bindings so the setting
+          * maintains the correct type after the user changes it.
+          */
+        self.settingsChanged = !_.isEqual(self.currentSettings, self.serverSettings);
 
-/*
-            <!-- Note that the .trim and .number in the v-model bindings are pretty important so the underlying currentSettings object maintains
-            the right types and doesn't keep any extra whitespace on the strings. Might be good to add some type checking if possible
-            when we process the changes so I can remember what it's for. 
-            Rather than just using lodash's equal method, it might be better to manual grab keys & check types and values
-            so I can give a good log message to remind future me. At least for number and bool values
-            Or I could manually coerce the properties back to the proper type and just let the UI be a little less type loose
-            Or maybe even make the server coerce the types. That might even be better - could compare vs what we have in the default
-            settings object to infer the typescript types and maintain them. I think I'll probably do that
-            Plus I'd rather not pull in lodash too if I'm trying to keep this a relatively simple thing
-             -->
-             */
+        console.log("settings changed event", self.settingsChanged);
+      },
 
+      handleServerSettings: (serverSettings: dataDefinitions.settings) => {
+        console.log('handleSettings called', serverSettings);
+        self.serverSettings = {...serverSettings};
+        self.currentSettings = {...serverSettings};
+      },
 
-          self.settingsChanged = !_.isEqual(self.currentSettings, self.serverSettings);
+      saveSettings: () => {
+        // initially start out as if the settings are already saved so the apply button disables. 
+        self.serverSettings = {...self.currentSettings};
 
-          console.log("settings changed event", self.settingsChanged);
+        console.log('Saving settings', self.currentSettings);
+
+        // fire off the save
+        fetch(`${serverRootUrl}/settings`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(self.currentSettings)
+        })
+          .then((res: { json: () => any; }) => res.json())
+          .then((settings: dataDefinitions.settings) => {
+            console.log('Read saved settings from server', settings);
+            self.handleServerSettings(settings);
+          });
+
       }
+
+
 
     },
 
