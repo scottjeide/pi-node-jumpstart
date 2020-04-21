@@ -46,7 +46,7 @@ const redis = new Redis({lazyConnect: true})
 }); 
 
 
-
+// This one also makes sense to write to the messages. 
 //var res = redis.set("test:startupMsg", "Hello! Server started at " + new Date());
 //console.log("wrote startup message: " + JSON.stringify(res));
 
@@ -58,13 +58,13 @@ const currentSettings = dataDefinitions.defaultSettings;
 expressApp.get('/settings', (req, res) => {
   res.send(currentSettings);
 });
-expressApp.post('/settings', (req, res) => {
+expressApp.post('/settings', async (req, res) => {
   const newSettings: dataDefinitions.settings = {...req.body};
   
   console.log('Received new settings', newSettings);
   
   // give this settings change a new id
-  newSettings.id = (new Date).toString();
+  newSettings.id = (new Date).getTime().toString();
 
   for (let prop in currentSettings) {
     if (newSettings.hasOwnProperty(prop)) {
@@ -73,8 +73,13 @@ expressApp.post('/settings', (req, res) => {
   }
   
   // Save off the settings in the db
-  const dbRes = redis.set(`settingsId:${currentSettings.id}`, JSON.stringify(currentSettings));
-  console.log(`Saved new settings, res: ${dbRes}`);
+  try {
+    await redis.set(`settingsId:${currentSettings.id}`, JSON.stringify(currentSettings));
+    console.log('Saved new settings');
+  }
+  catch(error) {
+    console.log('Error savings settings', error);
+  }
 
   // echo it back on the post request response
   res.send(currentSettings);
@@ -89,27 +94,35 @@ expressApp.get('/measurement', (req, res) => {
   // TODO: Finish this - want to be able to have the UI load measurements from the past
   console.log('GET /measurement called')
 });
-expressApp.post('/measurement', (req, res) => {
+expressApp.post('/measurement', async (req, res) => {
   const clientMeasurement: dataDefinitions.measurement = {...req.body};
   
   console.log('Received new measurement:', clientMeasurement);
   
   const now = new Date();
 
+  // server assigns the time
+  clientMeasurement.time = now.getTime();
+
   // probably could remove/ignore any props in the measurement that we don't expect, but doesn't really matter
   // for my use cases. If this was exposed publicly then would need to sanitize things (probably just worth a note
   // in the readme of what to change if making it publicly accessible)
   for (let prop in clientMeasurement) {
-      // It may be better to just write them all in one xadd call, but try this first. Or may need 
-      // to write them as separate measurements measurement:runid:measurementName to query them individually
+      // Writing each measurement separately so we can query them individually a bit easier through 
+      // a get on measurement:runid:measurementName
 
-      const dbRet = redis.xadd(
-        'measurement:' + currentSettings.id, 
-        '*', 
-        prop, clientMeasurement[prop], 
-        'time', now.toString()
-        );
-      console.log(`Measurement save ret: ${dbRet}`);
+      try {
+        await redis.xadd(
+          'measurement:' + currentSettings.id, 
+          '*', 
+          prop, clientMeasurement[prop], 
+          'time', now.getTime().toString()
+          );
+        console.log('Saved measurement');
+      }
+      catch (error) {
+        console.log('Error saving measurement', error);
+      }
   }
 
   // echo it back on the post request response
@@ -125,20 +138,26 @@ expressApp.get('/runtimeMessage', (req, res) => {
   // TODO: Finish this - want to be able to have the UI load older messages
   console.log('GET /runtimeMessage called')
 });
-expressApp.post('/runtimeMessage', (req, res) => {
+expressApp.post('/runtimeMessage', async (req, res) => {
   const runtimeMessage: dataDefinitions.runtimeMessage = {...req.body};
   
   console.log(`Received new message: ${JSON.stringify(runtimeMessage)}`);
   
   const now = new Date();
+  runtimeMessage.time = now.getTime();
 
-  const dbRet = redis.xadd(
-    'runtimeMessage:' + currentSettings.id, 
-    '*', 
-    'text', runtimeMessage.text,
-    'time', now.toString()
-    );
-  console.log(`Measurement save ret: ${dbRet}`);
+  try {
+    await redis.xadd(
+      'runtimeMessage:' + currentSettings.id, 
+      '*', 
+      'text', runtimeMessage.text,
+      'time', now.getTime().toString()
+      );
+    console.log('Runtime message saved');
+  }
+  catch (error) {
+    console.log('Error saving runtime message', error);
+  }
 
   // echo it back on the post request response
   res.send(runtimeMessage);
@@ -152,19 +171,9 @@ expressApp.post('/runtimeMessage', (req, res) => {
 // set up the socket handler
 socketIo.on('connection', function(socket){
   console.log('Got new client connection');
-//  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
-  // TODO: May not even need to watch for this one on the server. Clients will be posting to the rest api to add messages, not here
- 
-  socket.on('io:runtimeMessage', function(msg: dataDefinitions.runtimeMessage){
-    console.log('Got runtimeMessage:', msg);
-
-    // broadcast it back out to everyone (including the original sender)
-    //socketIo.emit('clientMessage', {emit: true, msg: msg});
-
-    // this version will broadcast back to everyone _except_ for the original sender
-    //socket.broadcast.emit('clientMessage', {broadcast: true, msg: msg});
-  });
+  // Probably should add this to the runtimeMessage log. And client disconnects too
+  //  redis.xadd('server:runLog', '*', 'message', 'New client connection');
 
   socket.on('disconnect', function(){
     console.log('client disconnected');
