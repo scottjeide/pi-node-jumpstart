@@ -20,7 +20,8 @@ let currentSettings = dataDefinitions.defaultSettings;
 
 // Get connected to the server
 const socket = io(serverRootUrl)
-.on('connect', function() {
+
+.on('connect', async function() {
   console.log('socket is connected');
 
   // just testing:
@@ -30,17 +31,19 @@ const socket = io(serverRootUrl)
 
   sendServerMessage(msg);
 
-
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
-  fetch(`${serverRootUrl}/settings`)
-    .then((res: { json: () => any; }) => res.json())
-    .then((settings: dataDefinitions.settings) => {
-      console.log('Read initial settings from server', settings);
-      handleSettings(settings);
-    });
-
+  try {
+    const response = await fetch(`${serverRootUrl}/settings`);
+    const settings: dataDefinitions.settings = await response.json();
+    console.log('Read initial settings from server', settings);
+    handleSettings(settings);
+  }
+  catch(error) {
+    console.log('Error reading initial settings', error);
+  }
 })
+
 .on('io:settings', (data) => {
   const settings: dataDefinitions.settings = data.msg;
   console.log('got updated settings from the server', settings);
@@ -56,21 +59,33 @@ function handleSettings(newSettings: dataDefinitions.settings) {
   if (newSettings.on && !currentSettings.on) {
     // start up the client
     if (timer == null) {
-      timer = setInterval(() => {
+      timer = setInterval(async () => {
 
-        const startTime = new Date();
-        console.log(`fetching ${currentSettings.checkUrl}`);
-        fetch(currentSettings.checkUrl)
-        .then((res: { json: () => any; }) => res.json())
-        .then((settings: dataDefinitions.settings) => {
+        try {
+          const startTime = new Date();
+          console.log(`fetching ${currentSettings.checkUrl}`);
+          const response = await fetch(currentSettings.checkUrl);
+          console.log(`got response. status: ${response.status}`);
           
+          // no real use for the actual data
+          //const data = await response.text();
+          //console.log('response text', data);
+  
           const endTime = new Date();
-          console.log('got response');
           const measurement: dataDefinitions.measurement = {
             responseTime: (endTime.getTime() - startTime.getTime()),
           }
-          sendMeasurement(measurement);
-        });
+          sendMeasurement(measurement);  
+        }        
+        catch(error) {
+          console.log(`error fetching ${currentSettings.checkUrl}`, error);
+
+          const msg : dataDefinitions.runtimeMessage = {
+            text: 'Hello from client'
+          };
+          sendServerMessage(msg);          
+        }
+
       }, newSettings.checkInterval * 1000);
     }
   }
@@ -101,21 +116,21 @@ function sendMeasurement(data: dataDefinitions.measurement) {
   return put(`${serverRootUrl}/measurement`, data);
 }
 
-function put(url:string, data: any) {
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  .then((response: { json: () => any; }) => response.json())
-  .then((data: any) => {
-    console.log('Send response:', data);
-  })
-  .catch((error: any) => {
+async function put(url:string, data: any) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    const responseData = await response.json();
+    console.log('Send response:', responseData);
+  }
+  catch(error) {
     console.error('Error sending:', error);
-  });
+  }
 }
 
 socket.on('disconnect', function() {
