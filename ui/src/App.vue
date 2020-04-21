@@ -183,7 +183,8 @@
         const message: dataDefinitions.runtimeMessage = data.msg;
         console.log('got new runtime message', message.text);
 
-        self.messages.unshift(message.text);
+        const messageTime = new Date(message.time);
+        self.messages.unshift(`${message.text} [${messageTime.toLocaleString()}]`);
         if (self.messages.length > 10) {
           self.messages.pop();
         }
@@ -198,8 +199,8 @@
 
         // TODO: need to find something better for label. Maybe just a tick every minute or something?
         // a label per datapoint is really messy
-        const now = new Date();
-        self.addData(now.toString(), measurement);
+        const measurementTime = new Date(measurement.time);
+        self.addData(measurementTime.toLocaleString(), measurement);
       })
       ;
 

@@ -59,6 +59,9 @@ interface measurement {
   responseTime?: number;
   batteryLevel?: number;
   wifiStrength?: number;
+
+  // UTC timestamp of the measurement (assigned by server)
+  time?: number;
 }
 
 
@@ -70,6 +73,9 @@ interface measurement {
  */
 interface runtimeMessage {
   text: string;
+
+  // UTC timestamp of the message (assigned by server)
+  time?: number;
 }
 
 export {
