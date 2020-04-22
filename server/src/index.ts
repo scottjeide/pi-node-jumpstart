@@ -31,6 +31,7 @@ const socketIo = require('socket.io')(expressHttpServer);
 const redis = new Redis({lazyConnect: true})
 .on('connect', () => {
   console.log('Connected to redis');
+  addRuntimeServerMessage('Connected to redis');
 
   // once we are connected to redis we can start serving client connections
   if (!serverListening) {
@@ -70,7 +71,7 @@ expressApp.post('/settings', async (req, res) => {
     }
   }
   
-  addRuntimeServerMessage(`Settings update: ${JSON.stringify(currentSettings)}`);
+  addRuntimeServerMessage(`Server settings updated: ${JSON.stringify(currentSettings)}`);
 
   // Save off the settings in the db
   try {
@@ -174,7 +175,7 @@ redis.connect()
  */
 function addRuntimeServerMessage(text: string) {
     const msg:dataDefinitions.runtimeMessage = {
-      text: text
+      text: `Server: ${text}`
     }
     addRuntimeMessage(msg);  
 }
