@@ -104,11 +104,7 @@
   const serverRootUrl = `http://localhost:3001`;
   console.log(`Connecting to: ${serverRootUrl}`);
 
-  
-
-  let self = null;
-  
-  export default {
+    export default {
     props: {
       source: String,
     },
@@ -148,8 +144,6 @@
     }),
 
     created () {
-      self = this;
-
       this.$vuetify.theme.dark = true;
 
 
@@ -160,7 +154,7 @@
           const response = await fetch(`${serverRootUrl}/settings`);
           const settings: dataDefinitions.settings = await response.json();
           console.log('Read initial settings from server', settings);
-          self.handleServerSettings(settings);
+          this.handleServerSettings(settings);
         }
         catch(error) {
           console.log('Error reading initial settings', error);
@@ -171,7 +165,7 @@
       .on('io:settings', (data) => {
         const settings: dataDefinitions.settings = data.msg;
         console.log('got updated settings from the server', settings);
-        self.handleServerSettings(settings);
+        this.handleServerSettings(settings);
       })
       
       // Watch for any runtime messages
@@ -180,12 +174,12 @@
         console.log('got new runtime message', message.text);
 
         const messageTime = new Date(message.time);
-        self.messages.unshift(`${message.text} [${messageTime.toLocaleString()}]`);
-        if (self.messages.length > 10) {
-          self.messages.pop();
+        this.messages.unshift(`${message.text} [${messageTime.toLocaleString()}]`);
+        if (this.messages.length > 10) {
+          this.messages.pop();
         }
 
-        self.messageText = self.messages.join("\n");
+        this.messageText = this.messages.join("\n");
       })
 
       // watch for the measurements
@@ -196,60 +190,62 @@
         // TODO: need to find something better for label. Maybe just a tick every minute or something?
         // a label per datapoint is really messy
         const measurementTime = new Date(measurement.time);
-        self.addData(measurementTime.toLocaleString(), measurement);
+        this.addData(measurementTime.toLocaleString(), measurement);
       })
       ;
 
-      self.$watch('currentSettings', self.currentSettingsChanged, {deep: true});
+      this.$watch('currentSettings', this.currentSettingsChanged, {deep: true});
     },
 
     methods: {
-      addData: (label, measurement:dataDefinitions.measurement) => {
-        self.chartData.labels.push(label);
+      // Don't declare these methods w/ arrow functions. Otherwise 'this' won't be bound to the component
+      // See https://michaelnthiessen.com/this-is-undefined/ for a good explanation
+      
+      addData: function(label, measurement:dataDefinitions.measurement) {
+        this.chartData.labels.push(label);
 
-        self.chartData.datasets[0].data.push(measurement.responseTime);
+        this.chartData.datasets[0].data.push(measurement.responseTime);
 
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
-        self.chartData = {...self.chartData}
+        this.chartData = {...this.chartData}
       },
 
-      currentSettingsChanged: () => {
+      currentSettingsChanged: function() {
          
-        /* Note: if you see settingsChanged being set to true when not expected, make sure the type of the settings aren't getting
-          * changed or extra whitespace being added. Be sure to add .trim and .number in the v-model bindings so the setting
-          * maintains the correct type after the user changes it.
-          */
-        self.settingsChanged = !_.isEqual(self.currentSettings, self.serverSettings);
+        // If you see settingsChanged being set to true when not expected, make sure the type of the settings aren't getting
+        // changed or extra whitespace being added. Be sure to add .trim and .number in the v-model bindings so the setting
+        // maintains the correct type after the user changes it.
+        this.settingsChanged = !_.isEqual(this.currentSettings, this.serverSettings);
       },
 
-      handleServerSettings: (serverSettings: dataDefinitions.settings) => {
+      handleServerSettings: function(serverSettings: dataDefinitions.settings) {
         console.log('handleSettings called', serverSettings);
-        self.serverSettings = {...serverSettings};
-        self.currentSettings = {...serverSettings};
+        this.serverSettings = {...serverSettings};
+        this.currentSettings = {...serverSettings};
       },
 
-      saveSettings: async () => {
+      saveSettings: async function() {
         // initially start out as if the settings are already saved so the apply button disables. 
-        const prevSettings = {...self.serverSettings};
-        self.serverSettings = {...self.currentSettings};
+        const prevSettings = {...this.serverSettings};
+        this.serverSettings = {...this.currentSettings};
 
-        console.log('Saving settings', self.currentSettings);
+        console.log('Saving settings', this.currentSettings);
 
         // Post the new settings to the server
         try {
           const response = await fetch(`${serverRootUrl}/settings`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(self.currentSettings)
+            body: JSON.stringify(this.currentSettings)
           });
           const updatedSettings: dataDefinitions.settings = await response.json();
           console.log('Saved settings to server');
-          self.handleServerSettings(updatedSettings);
+          this.handleServerSettings(updatedSettings);
         }
         catch (error) {
           console.log('Error saving settings', error);
           // Restore what we had
-          self.handleServerSettings(prevSettings);
+          this.handleServerSettings(prevSettings);
         }
       }
     },

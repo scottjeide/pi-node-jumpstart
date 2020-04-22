@@ -1,7 +1,5 @@
 My basic backlog
 
-- Can we bind the socket .on calls with a this so can clean up the self stuff?
-
 - Add measurements for battery level, wifi strength, cpu temp maybe
 
 - UI cleanup
@@ -17,7 +15,7 @@ My basic backlog
     - Might make more sense to just create a new ID for every settings change. I think that's the way it's actually working right now. 
     - Server needs to load 'current' setting at startup and use the right settings id
 
-- clean up typescript 
+- clean up typescript warnings/suggestions
 
 - automatically start redis-server when the server launches if not already running? redis-server on my mac is what I use
 - Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
