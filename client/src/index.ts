@@ -21,7 +21,7 @@ let currentSettings = dataDefinitions.defaultSettings;
 // Get connected to the server
 const socket = io(serverRootUrl)
 
-.on('connect', async function() {
+.on('connect', async () => {
   console.log('socket connected');
 
   sendServerMessage('Client is connected to server');
@@ -39,7 +39,7 @@ const socket = io(serverRootUrl)
   }
 })
 
-.on('disconnect', function() {
+.on('disconnect', () => {
   console.log('socket disconnected');
   sendServerMessage('Client lost connection to server');
 })

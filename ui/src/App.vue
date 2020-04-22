@@ -154,19 +154,20 @@
 
 
       const socket = io(serverRootUrl);
-      socket.on('connect', function() {
+      socket.on('connect', async () => {
         console.log('socket is connected');
-
-        // Grab the current settings
-        fetch(`${serverRootUrl}/settings`)
-          .then((res: { json: () => any; }) => res.json())
-          .then((settings: dataDefinitions.settings) => {
-            console.log('Read initial settings from server', settings);
-            self.handleServerSettings(settings);
-          });
+        try {
+          const response = await fetch(`${serverRootUrl}/settings`);
+          const settings: dataDefinitions.settings = await response.json();
+          console.log('Read initial settings from server', settings);
+          self.handleServerSettings(settings);
+        }
+        catch(error) {
+          console.log('Error reading initial settings', error);
+        }
       })
       
-      // Pick up any changes a different client might be making to the current settings
+      // Pick up any changes a different UI might be making to the current settings
       .on('io:settings', (data) => {
         const settings: dataDefinitions.settings = data.msg;
         console.log('got updated settings from the server', settings);
@@ -219,8 +220,6 @@
           * maintains the correct type after the user changes it.
           */
         self.settingsChanged = !_.isEqual(self.currentSettings, self.serverSettings);
-
-        console.log("settings changed event", self.settingsChanged);
       },
 
       handleServerSettings: (serverSettings: dataDefinitions.settings) => {
@@ -229,28 +228,30 @@
         self.currentSettings = {...serverSettings};
       },
 
-      saveSettings: () => {
+      saveSettings: async () => {
         // initially start out as if the settings are already saved so the apply button disables. 
+        const prevSettings = {...self.serverSettings};
         self.serverSettings = {...self.currentSettings};
 
         console.log('Saving settings', self.currentSettings);
 
-        // fire off the save
-        fetch(`${serverRootUrl}/settings`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(self.currentSettings)
-        })
-          .then((res: { json: () => any; }) => res.json())
-          .then((settings: dataDefinitions.settings) => {
-            console.log('Read saved settings from server', settings);
-            self.handleServerSettings(settings);
+        // Post the new settings to the server
+        try {
+          const response = await fetch(`${serverRootUrl}/settings`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(self.currentSettings)
           });
-
+          const updatedSettings: dataDefinitions.settings = await response.json();
+          console.log('Saved settings to server');
+          self.handleServerSettings(updatedSettings);
+        }
+        catch (error) {
+          console.log('Error saving settings', error);
+          // Restore what we had
+          self.handleServerSettings(prevSettings);
+        }
       }
-
-
-
     },
 
     components: {
