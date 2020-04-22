@@ -106,11 +106,6 @@
 
   
 
-  // Next steps: Add the messages and the data (maybe make some timers on the server or client just generate some)
-
-  // dynamically add the labels based on the data definitions
-
-
   let self = null;
   
   export default {

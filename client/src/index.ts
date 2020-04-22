@@ -22,14 +22,9 @@ let currentSettings = dataDefinitions.defaultSettings;
 const socket = io(serverRootUrl)
 
 .on('connect', async function() {
-  console.log('socket is connected');
+  console.log('socket connected');
 
-  // just testing:
-  const msg : dataDefinitions.runtimeMessage = {
-    text: 'Hello from client'
-  };
-
-  sendServerMessage(msg);
+  sendServerMessage('Client is connected to server');
 
   // Read the current settings - any changes will come through the socket message. Reading them
   // here in order to pick up any settings that might have been made while we were disconnected
@@ -44,15 +39,23 @@ const socket = io(serverRootUrl)
   }
 })
 
+.on('disconnect', function() {
+  console.log('socket disconnected');
+  sendServerMessage('Client lost connection to server');
+})
+
 .on('io:settings', (data) => {
   const settings: dataDefinitions.settings = data.msg;
   console.log('got updated settings from the server', settings);
   handleSettings(settings);
 });
 
+
+
+
 let timer = null;
 /**
- * just a super basic timer for now to see if I can do some measurements on an interval and report to the server
+ * Handles the settings updates. Currently just collects measurements on the configured interval
  * @param newSettings 
  */
 function handleSettings(newSettings: dataDefinitions.settings) {
@@ -79,11 +82,7 @@ function handleSettings(newSettings: dataDefinitions.settings) {
         }        
         catch(error) {
           console.log(`error fetching ${currentSettings.checkUrl}`, error);
-
-          const msg : dataDefinitions.runtimeMessage = {
-            text: 'Hello from client'
-          };
-          sendServerMessage(msg);          
+          sendServerMessage(`Error fetching ${currentSettings.checkUrl}: ${JSON.stringify(error)}`);          
         }
 
       }, newSettings.checkInterval * 1000);
@@ -103,10 +102,13 @@ function handleSettings(newSettings: dataDefinitions.settings) {
 
 /**
  * Sends a runtime message to the server
- * @param message the message to send
+ * @param text the message to send
  */
-function sendServerMessage(message: dataDefinitions.runtimeMessage) {
-  console.log('Sending runtimeMessage to server');
+function sendServerMessage(text: string) {
+  console.log(`Sending runtimeMessage: ${text}`);
+  const message : dataDefinitions.runtimeMessage = {
+    text: text
+  };
 
   return put(`${serverRootUrl}/runtimeMessage`, message);
 }
@@ -132,8 +134,3 @@ async function put(url:string, data: any) {
     console.error('Error sending:', error);
   }
 }
-
-socket.on('disconnect', function() {
-  console.log('disconnected');
-});
-
