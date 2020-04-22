@@ -1,45 +1,46 @@
+My basic backlog
 
+- Replace fetch promises with await. 
+- Can we bind the socket .on calls with a this so can clean up the self stuff?
 
-- document the 3 pieces and wha they do: client (the pi doing stuff), 
-  server (routing messages around and logging things to the db), 
-  and UI (controlling things and displaying status)
+- Clean up console.logs so they are all consistent in what/how they are logging
+
+- Add measurements for battery level, wifi strength, cpu temp maybe
+
+- UI cleanup
+  - clean up UI around the messages
+  - dynamically add the data labels based on the data definitions
+  - clean up the time series data lables on x-axis points. Unreadable when there are a bunch. Maybe make the graph do it automatically
+  - Create a controlPanel top section in the UI. Still not sure I like the accordian stuff on the UI. Just show them all as cards/panes and have them always visible? Maybe the spot where you configure new settings doesn't need to be always visible though
+  - my own logos/icon
+
 - When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId. 
-    - Might make more sense to just create a new ID for every settings change. I think that's the way it's actually working right now
-    
-- automatically start redis-server when the server launches if not already running?
-    - redis-server on my mac is what I use
-- Does it even make sense to namespace the socket message channels with io:? Could just make it one-to-one with the rest apis
-  
+    - Might make more sense to just create a new ID for every settings change. I think that's the way it's actually working right now. 
+    - Server needs to load 'current' setting at startup and use the right settings id
+
+- clean up typescript 
+
+- automatically start redis-server when the server launches if not already running? redis-server on my mac is what I use
 - Make sure redis server is configured with the right save options so we don't lose data when we lose power (see my redis notes)
-- Could change the socketio writes in the put handlers to just use a pub/sub on redis rather than doing it directly in the rest endpoint
-- clean up the dataDefinitions so they are generic rather than temps? Or maybe get it all working for the temps first and then make it generic
-- Would be nice to switch the tsc options to create a single output file if could figure it out
-
-
-- May want to move some of the UI assets from CDN to just on the pi? Probably not though, the browser should be running on a machine that has full internet access
-- logos
-
-
-Next steps:
-  - Put the messages in there too (at least the last handful of messages)
-
-- Clean up the chart labels. Labeling every single point with full date/time isn't going to work
-
-- Create a controlPanel top section in the UI. Still not sure I like the accordian stuff on the UI. Just show them all as cards/panes and have them always visible? Maybe the spot where you configure new settings doesn't need to be always visible though
-
 
 - ensure type validity on output of server (maybe input too). At minimum be flexible on input, strict on output/db storage
 
-- Times of things should be controlled by server? Maybe both client and server?
+- Would be nice to switch the tsc options to create a single output file if could figure it out
+
+- overall build script that builds everything from the root
+- pi install script? Something that would install and set up redis? Install the client & server apps to start at boot/init
+
+
 
 - Have the server serve up the UI build rather than having to run that as a separate server. Maybe make the build of the UI project copy it into the server www directory (and mark it as git ignore)
-- overall build script that builds everything from the root
-- pi install script? Something that would install and set up redis?
-- Actually test it on a pi with some real measurements - better example than smoker and makes more sense to document/blog that. Maybe wifi strength, download speed, ping time, or something like that. Settings to configure poll intervals and what it will ping
-- Clean up logs & typescript. Replace fetch promises with await. Can we bind the socket .on calls with a this so can clean up the self stuff?
-- add a temperature probe? Just to give it something real to measure? There's a built-in way to measure the cpu temp
 
-- Update the readme, add the appropriate tags, make sure the repo is public (can't remember if I made it that way)
+
+
+
+- Update the readme, add the appropriate tags, make sure the repo is public (can't remember if I made it that way).
+- document the 3 pieces and wha they do: client (the pi doing stuff),  server (routing messages around and logging things to the db),  and UI (controlling things and displaying status)
+- Document how to build/debug various components (include debug configs in vscode dot file somehow?)
 - blog it!
 
-- load previous runs and chart them
+
+- load previous runs/settings ids and display the measurements and messages for them
