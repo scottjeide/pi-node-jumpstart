@@ -1,7 +1,8 @@
 import commandLine = require('commander');
 const fetch = require('node-fetch');
 import io = require('socket.io-client');
-import * as dataDefinitions from '../../shared/dataDefinitions'
+import * as dataDefinitions from '../../shared/dataDefinitions';
+import _ = require('lodash');
 
 
 // set up the command line parser
@@ -34,7 +35,7 @@ const socket = io(serverRootUrl)
     console.log('Read initial settings from server', settings);
     handleSettings(settings);
   }
-  catch(error) {
+  catch (error) {
     console.log('Error reading initial settings', error);
   }
 })
@@ -59,44 +60,48 @@ let timer = null;
  * @param newSettings 
  */
 function handleSettings(newSettings: dataDefinitions.settings) {
-  if (newSettings.on && !currentSettings.on) {
-    // start up the client
-    if (timer == null) {
-      timer = setInterval(async () => {
 
-        try {
-          const startTime = new Date();
-          console.log(`fetching ${currentSettings.checkUrl}`);
-          const response = await fetch(currentSettings.checkUrl);
-          console.log(`got response. status: ${response.status}`);
-          
-          // no real use for the actual data
-          //const data = await response.text();
-          //console.log('response text', data);
-  
-          const endTime = new Date();
-          const measurement: dataDefinitions.measurement = {
-            responseTime: (endTime.getTime() - startTime.getTime()),
-          }
-          sendMeasurement(measurement);  
-        }        
-        catch(error) {
-          console.log(`error fetching ${currentSettings.checkUrl}`, error);
-          sendServerMessage(`Error fetching ${currentSettings.checkUrl}: ${JSON.stringify(error)}`);          
-        }
-
-      }, newSettings.checkInterval * 1000);
-    }
-  }
-  else if (!newSettings.on && currentSettings.on) {
-    // shutdown the client
-    if (timer != null) {
-      clearInterval(timer);
-      timer = null;
-    }
+  if (_.isEqual(newSettings, currentSettings)) {
+    console.log(`Settings haven't changed. Ignoring`);
+    return;
   }
 
   currentSettings = newSettings;
+
+  // shutdown the previous
+  if (timer != null) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  const doMeasurements = async () => {
+    try {
+      const startTime = new Date();
+      console.log(`fetching ${currentSettings.checkUrl}`);
+      const response = await fetch(currentSettings.checkUrl);
+      console.log(`got response. status: ${response.status}`);
+      
+      // no real use for the actual data
+      //const data = await response.text();
+      //console.log('response text', data);
+
+      const endTime = new Date();
+      const measurement: dataDefinitions.measurement = {
+        responseTime: (endTime.getTime() - startTime.getTime()),
+      }
+      sendMeasurement(measurement);  
+    }        
+    catch (error) {
+      console.log(`error fetching ${currentSettings.checkUrl}`, error);
+      sendServerMessage(`Error fetching ${currentSettings.checkUrl}: ${JSON.stringify(error)}`);          
+    }
+  }
+
+  if (currentSettings.on) {
+    // start up the client measurement timer
+    console.log(`Running measurement checks in ${currentSettings.checkInterval} seconds`)
+    timer = setInterval(doMeasurements, currentSettings.checkInterval * 1000);
+  }
 }
 
 
