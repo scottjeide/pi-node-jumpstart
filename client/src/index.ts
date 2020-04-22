@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 import io = require('socket.io-client');
 import * as dataDefinitions from '../../shared/dataDefinitions';
 import _ = require('lodash');
+import batteryLevel = require('battery-level');
 
 
 // set up the command line parser
@@ -88,6 +89,7 @@ function handleSettings(newSettings: dataDefinitions.settings) {
       const endTime = new Date();
       const measurement: dataDefinitions.measurement = {
         responseTime: (endTime.getTime() - startTime.getTime()),
+        batteryLevel: await batteryLevel()
       }
       sendMeasurement(measurement);  
     }        
@@ -101,6 +103,9 @@ function handleSettings(newSettings: dataDefinitions.settings) {
     // start up the client measurement timer
     console.log(`Running measurement checks in ${currentSettings.checkInterval} seconds`)
     timer = setInterval(doMeasurements, currentSettings.checkInterval * 1000);
+  }
+  else {
+    console.log('Settings off, not running checks');
   }
 }
 
@@ -135,7 +140,7 @@ async function put(url:string, data: any) {
     const responseData = await response.json();
     console.log('Send response:', responseData);
   }
-  catch(error) {
+  catch (error) {
     console.error('Error sending:', error);
   }
 }
