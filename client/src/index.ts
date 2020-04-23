@@ -3,7 +3,9 @@ const fetch = require('node-fetch');
 import io = require('socket.io-client');
 import * as dataDefinitions from '../../shared/dataDefinitions';
 import _ = require('lodash');
-import batteryLevel = require('battery-level');
+
+// Check out https://www.npmjs.com/package/systeminformation for lots of handy we can measure & log about the system we're running on
+import systemInfo = require('systeminformation');
 
 
 // set up the command line parser
@@ -122,19 +124,26 @@ function handleSettings(newSettings: dataDefinitions.settings) {
 
   const doMeasurements = async () => {
     try {
-      const startTime = new Date();
-      console.log(`fetching ${currentSettings.checkUrl}`);
-      const response = await fetch(currentSettings.checkUrl);
-      console.log(`got response. status: ${response.status}`);
       
-      // no real use for the actual data
-      //const data = await response.text();
-      //console.log('response text', data);
+      
+      // Fire off each of these async measurements into separate promises so we can kick them off in 
+      // parallel and then await for all to complete rather than awaiting for each in sequence
+      const [responseTime, wifiInfo, batteryInfo] = await Promise.all(
+        [
+          checkUrlResponseTime(currentSettings.checkUrl),
+          systemInfo.wifiNetworks(),
+          systemInfo.battery()
+        ]
+      );
 
-      const endTime = new Date();
       const measurement: dataDefinitions.measurement = {
-        responseTime: (endTime.getTime() - startTime.getTime()),
-        batteryLevel: await batteryLevel()
+        responseTime: responseTime,
+      }
+      if (wifiInfo.length > 0) {
+        measurement.wifiStrength = wifiInfo[0].signalLevel;
+      }
+      if (batteryInfo.hasbattery) {
+        measurement.batteryLevel = batteryInfo.percent;
       }
       sendMeasurement(measurement);  
     }        
@@ -154,4 +163,18 @@ function handleSettings(newSettings: dataDefinitions.settings) {
   }
 }
 
+/**
+ * Fetches a URL and returns the response time
+ * @param url 
+ */
+async function checkUrlResponseTime(url:string) {
+  const startTime = new Date();
+  console.log(`fetching ${url}`);
+  const response = await fetch(url);   
+  const endTime = new Date();
+  const responseTime = endTime.getTime() - startTime.getTime();
 
+  console.log(`got response. status: ${response.status} in ${responseTime}ms`);
+
+  return responseTime;
+}
