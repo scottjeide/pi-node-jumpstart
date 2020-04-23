@@ -158,7 +158,7 @@
           console.log('Error reading initial settings', error);
         }
       })
-      
+
       .on('disconnect', () => {
         console.log('socket disconnected');
         this.addMessage('UI: lost server connection');        
@@ -189,7 +189,7 @@
         // a label per datapoint is really messy
         const measurementTime = new Date(measurement.time);
         this.addData(measurementTime.toLocaleString(), measurement);
-        this.latestMeasurement = JSON.stringify(measurement);
+        this.latestMeasurement = `${JSON.stringify(measurement)} [${measurementTime.toLocaleString()}]`;
       })
       ;
 
