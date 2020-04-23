@@ -53,6 +53,51 @@ const socket = io(serverRootUrl)
 });
 
 
+/**
+ * Sends a runtime message to the server
+ * @param text the message to send
+ */
+function sendServerMessage(text: string) {
+  console.log(`Sending runtimeMessage: ${text}`);
+  const message : dataDefinitions.runtimeMessage = {
+    text: text
+  };
+
+  return post(`${serverRootUrl}/runtimeMessage`, message);
+}
+
+/**
+ * Sends a measurement to the server
+ * @param dataDefinitions.measurement
+ */
+function sendMeasurement(data: dataDefinitions.measurement) {
+  console.log('Sending measurement to server', data);
+  return post(`${serverRootUrl}/measurement`, data);
+}
+
+/**
+ * Helper for posting to the server
+ * @param url 
+ * @param data 
+ */
+async function post(url:string, data: any) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    const responseData = await response.json();
+    console.log('Send response:', responseData);
+  }
+  catch (error) {
+    console.error('Error sending:', error);
+  }
+}
+
+
 
 
 let timer = null;
@@ -110,37 +155,3 @@ function handleSettings(newSettings: dataDefinitions.settings) {
 }
 
 
-/**
- * Sends a runtime message to the server
- * @param text the message to send
- */
-function sendServerMessage(text: string) {
-  console.log(`Sending runtimeMessage: ${text}`);
-  const message : dataDefinitions.runtimeMessage = {
-    text: text
-  };
-
-  return put(`${serverRootUrl}/runtimeMessage`, message);
-}
-
-function sendMeasurement(data: dataDefinitions.measurement) {
-  console.log('Sending measurement to server', data);
-  return put(`${serverRootUrl}/measurement`, data);
-}
-
-async function put(url:string, data: any) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    const responseData = await response.json();
-    console.log('Send response:', responseData);
-  }
-  catch (error) {
-    console.error('Error sending:', error);
-  }
-}
