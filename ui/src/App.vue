@@ -6,87 +6,61 @@
       clipped-left
     >
       <v-toolbar-title>Pi Controller</v-toolbar-title>
-      <!-- Could put a on/off button here on the title. That would make it always available at the top? Either that or just make a fixed panel at the top that has the status + settings
-      <v-spacer></v-spacer>
-
-      <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>      
-      -->
     </v-app-bar>
 
     <v-content>
-      <!-- cards might be better too - especially for fixed content like the status & data -->
-      <v-expansion-panels
-        :accordion=true
-        :multiple=true
-      >
-        <v-expansion-panel
-          :isActive=true
+      <v-container>
+        <h2>Control Panel</h2>
+        <v-form
+          ref="controlPanelForm"
         >
-          <v-expansion-panel-header>Control Panel</v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <v-switch
-              v-model="currentSettings.on"
-              :label="`Power: ${currentSettings.on ? 'On' : 'Off'}`"
-            ></v-switch>
-            <v-text-field
-              v-model.number="currentSettings.checkInterval"
-              label="Check Interval (in seconds)"
-              type="number"
-              :outlined=true
-            ></v-text-field>
-            <v-text-field
-              v-model.trim="currentSettings.checkUrl"
-              label="URL to check"
-              :outlined=true
-            ></v-text-field>
+          <v-switch
+            v-model="currentSettings.on"
+            :label="`Power: ${currentSettings.on ? 'On' : 'Off'}`"
+          ></v-switch>
 
-            <v-text-field
-              v-model="currentSettings.id"
-              label="Settings ID"
-              placeholder=" "
-              readonly
-              disabled
-              :outlined=false
-            ></v-text-field>
+          <v-text-field
+            v-model.number="currentSettings.checkInterval"
+            label="Check Interval (in seconds)"
+            type="number"
+            :outlined=true
+          ></v-text-field>
+          <v-text-field
+            v-model.trim="currentSettings.checkUrl"
+            label="URL to check"
+            :outlined=true
+          ></v-text-field>
 
-            <div class="my-2">
-              <v-btn depressed color="primary" :disabled="!settingsChanged" @click="saveSettings()">Apply</v-btn>
-            </div>              
-
-            <v-textarea
-              readonly
-              :outlined=true
-              label="Messages"
-              placeholder=" "
-              v-model="messageText"
-
-            >
-            </v-textarea>
-            <!-- start/stop buttons?, running or not running, current settings, last N messages -->
-
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-
-        <v-expansion-panel>
-          <v-expansion-panel-header>Change Settings</v-expansion-panel-header>
-          <v-expansion-panel-content>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-
-        <v-expansion-panel>
-          <v-expansion-panel-header>Data</v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <lineChart :chartData="chartData"/>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-
-      </v-expansion-panels>
+          <v-btn class="my-2" depressed color="primary" :disabled="!settingsChanged" @click="saveSettings()">Apply</v-btn>
+        </v-form>
+      </v-container>
+      
+      <v-divider></v-divider>
+      <v-container>
+        <h2>Status</h2>
+        <v-text-field
+          v-model="currentSettings.id"
+          label="Settings ID"
+          placeholder=" "
+          readonly
+          disabled
+          :outlined=false
+        ></v-text-field>
+        <v-textarea
+          readonly
+          :outlined=true
+          label="Messages"
+          placeholder=" "
+          v-model="messageText"
+        >
+        </v-textarea>
+      </v-container>
+      
+      <v-divider></v-divider>
+      <v-container>
+        <h2>Data</h2>
+        <lineChart :chartData="chartData"/>
+      </v-container>
     </v-content>
 
     <v-footer app>
