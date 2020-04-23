@@ -136,15 +136,18 @@
       latestMeasurement: "",
       messages: [],      
       chartData: chartData,
+
+      socket: null,
     }),
 
-    created () {
+    created() {
       this.$vuetify.theme.dark = true;
 
       console.log(`Connecting to: ${serverRootUrl}`);
-      const socket = io(serverRootUrl);
-      socket.on('connect', async () => {
+      this.socket = io(serverRootUrl);
+      this.socket.on('connect', async () => {
         console.log('socket is connected');
+        this.addMessage('UI: connected to server');
         try {
           const response = await fetch(`${serverRootUrl}/settings`);
           const settings: dataDefinitions.settings = await response.json();
@@ -154,6 +157,11 @@
         catch(error) {
           console.log('Error reading initial settings', error);
         }
+      })
+      
+      .on('disconnect', () => {
+        console.log('socket disconnected');
+        this.addMessage('UI: lost server connection');        
       })
       
       // Pick up any changes a different UI might be making to the current settings
@@ -169,12 +177,7 @@
         console.log('got new runtime message', message.text);
 
         const messageTime = new Date(message.time);
-        this.messages.unshift(`${message.text} [${messageTime.toLocaleString()}]`);
-        if (this.messages.length > 10) {
-          this.messages.pop();
-        }
-
-        this.messageText = this.messages.join("\n");
+        this.addMessage(message.text, messageTime);
       })
 
       // watch for the measurements
@@ -193,6 +196,15 @@
       this.$watch('currentSettings', this.currentSettingsChanged, {deep: true});
     },
 
+    beforeDestroy() {
+      if (this.socket != null) {
+        console.log('Disconnecting from server');
+        this.socket.disconnect();
+      }
+
+      this.socket = null;
+    },
+
     methods: {
       // Don't declare these methods w/ arrow functions. Otherwise 'this' won't be bound to the component
       // See https://michaelnthiessen.com/this-is-undefined/ for a good explanation
@@ -209,6 +221,20 @@
 
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
         this.chartData = {...this.chartData}
+      },
+
+      // adds the given message text to the UI
+      addMessage: function(msg: string, time: Date = null) {
+        if (time === null) {
+          time = new Date();
+        }
+
+        this.messages.unshift(`${msg} [${time.toLocaleString()}]`);
+        if (this.messages.length > 10) {
+          this.messages.pop();
+        }
+
+        this.messageText = this.messages.join("\n");        
       },
 
       currentSettingsChanged: function() {

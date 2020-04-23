@@ -63,7 +63,7 @@ expressApp.post('/settings', async (req, res) => {
   console.log('Received new settings', newSettings);
   
   // give this settings change a new id
-  newSettings.id = (new Date).getTime().toString();
+  newSettings.id = (new Date()).getTime().toString();
 
   for (let prop in currentSettings) {
     if (newSettings.hasOwnProperty(prop)) {
