@@ -1,6 +1,6 @@
 My basic backlog
 
-- Add measurements for battery level, wifi strength, cpu temp maybe
+- Add measurements for wifi strength, cpu temp maybe
 
 - UI cleanup
   - clean up UI around the messages
@@ -27,11 +27,7 @@ My basic backlog
 - overall build script that builds everything from the root
 - pi install script? Something that would install and set up redis? Install the client & server apps to start at boot/init
 
-
-
 - Have the server serve up the UI build rather than having to run that as a separate server. Maybe make the build of the UI project copy it into the server www directory (and mark it as git ignore)
-
-
 
 
 - Update the readme, add the appropriate tags, make sure the repo is public (can't remember if I made it that way).

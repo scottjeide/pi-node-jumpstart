@@ -102,9 +102,39 @@
   import _ from 'lodash';
 
   const serverRootUrl = `http://localhost:3001`;
-  console.log(`Connecting to: ${serverRootUrl}`);
+  
+  
+  // Set up what measurements we want to add to the chart.
+  // Can pick colors from https://vuetifyjs.com/en/styles/colors/ to match the material design color palette  
+  const chartData = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Response Time',
+        backgroundColor: '#F44336',
+        borderColor:  '#F44336',
+        data: [],
+        fill: false,
+      },
+      {
+        label: 'Battery Level',
+        backgroundColor: '#2196F3',
+        borderColor:  '#2196F3',
+        data: [],
+        fill: false,
+      }
+    ],
 
-    export default {
+    // The maps a measurement name to the appropriate dataset index above
+    measurementToDatasetIndex: {
+      responseTime: 0,
+      batteryLevel: 1,  
+      //wifiStrength: 2;
+    }
+  };
+
+
+  export default {
     props: {
       source: String,
     },
@@ -122,31 +152,13 @@
 
       messageText: "",
       messages: [],      
-      chartData: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Smoker Temp',
-            backgroundColor: '#FF0033',
-            borderColor:  '#FF0033',
-            data: [],
-            fill: false,
-          },
-          {
-            label: 'Meat Temp',
-            backgroundColor: '#0033FF',
-            borderColor:  '#0033FF',
-            data: [],
-            fill: false,
-          }
-        ]
-      },
+      chartData: chartData,
     }),
 
     created () {
       this.$vuetify.theme.dark = true;
 
-
+      console.log(`Connecting to: ${serverRootUrl}`);
       const socket = io(serverRootUrl);
       socket.on('connect', async () => {
         console.log('socket is connected');
@@ -204,7 +216,12 @@
       addData: function(label, measurement:dataDefinitions.measurement) {
         this.chartData.labels.push(label);
 
-        this.chartData.datasets[0].data.push(measurement.responseTime);
+        for (const measurementName in measurement) {
+          const chartDataIdx = this.chartData.measurementToDatasetIndex[measurementName];
+          if (chartDataIdx !== undefined) {
+            this.chartData.datasets[chartDataIdx].data.push(measurement[measurementName]);  
+          }
+        }
 
         // it won't pick up the dynamic stuff we added unless we assign app.chartData to a new object
         this.chartData = {...this.chartData}
