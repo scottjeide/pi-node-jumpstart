@@ -122,6 +122,13 @@
         borderColor:  '#2196F3',
         data: [],
         fill: false,
+      },
+      {
+        label: 'Wifi Signal Level (dB)',
+        backgroundColor: '#FFC107',
+        borderColor:  '#FFC107',
+        data: [],
+        fill: false,
       }
     ],
 
@@ -129,7 +136,7 @@
     measurementToDatasetIndex: {
       responseTime: 0,
       batteryLevel: 1,  
-      //wifiStrength: 2;
+      wifiStrength: 2
     }
   };
 
