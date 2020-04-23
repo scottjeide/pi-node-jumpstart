@@ -27,11 +27,31 @@ let serverListening = false;
 // get socket.io ready
 const socketIo = require('socket.io')(expressHttpServer);
 
+// Set up the settings api handlers
+let currentSettings = dataDefinitions.defaultSettings;
+
 // get our connection to redis all set up. Will connect to 127.0.0.1:6379 by default
 const redis = new Redis({lazyConnect: true})
-.on('connect', () => {
+.on('connect', async () => {
   console.log('Connected to redis');
   addRuntimeServerMessage('Connected to redis');
+
+  // load up the current setting
+  try {
+    const currentSettingsId = await redis.get('currentSettingsId');
+    const savedCurrentSettingString = await redis.get(`settingsId:${currentSettingsId}`);
+    const savedSettings = JSON.parse(savedCurrentSettingString);
+    if (savedSettings) {
+      console.log('Loaded current settings', savedSettings);
+      currentSettings = savedSettings;
+    }
+    else {
+      console.log('No saved settings, using default', currentSettings);
+    }
+  }
+  catch (error) {
+    console.log('Error savings settings', error);
+  }
 
   // once we are connected to redis we can start serving client connections
   if (!serverListening) {
@@ -51,8 +71,6 @@ const redis = new Redis({lazyConnect: true})
   addRuntimeServerMessage(logMessage);
 });
 
-// Set up the settings api handlers
-const currentSettings = dataDefinitions.defaultSettings;
 
 expressApp.get('/settings', (req, res) => {
   res.send(currentSettings);
@@ -78,8 +96,17 @@ expressApp.post('/settings', async (req, res) => {
     await redis.set(`settingsId:${currentSettings.id}`, JSON.stringify(currentSettings));
     console.log('Saved new settings');
   }
-  catch(error) {
+  catch (error) {
     console.log('Error savings settings', error);
+  }
+
+  // mark it as the current setting as well
+  try {
+    await redis.set('currentSettingsId', currentSettings.id);
+    console.log('Marked settings as current');
+  }
+  catch (error) {
+    console.log('Error marking settings as current', error);
   }
 
   // echo it back on the post request response
