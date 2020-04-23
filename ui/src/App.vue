@@ -10,7 +10,7 @@
 
     <v-content>
       <v-container>
-        <h2>Control Panel</h2>
+        <h3>Control Panel</h3>
         <v-form
           ref="controlPanelForm"
         >
@@ -23,12 +23,12 @@
             v-model.number="currentSettings.checkInterval"
             label="Check Interval (in seconds)"
             type="number"
-            :outlined=true
+            dense
           ></v-text-field>
           <v-text-field
             v-model.trim="currentSettings.checkUrl"
             label="URL to check"
-            :outlined=true
+            dense
           ></v-text-field>
 
           <v-btn class="my-2" depressed color="primary" :disabled="!settingsChanged" @click="saveSettings()">Apply</v-btn>
@@ -37,19 +37,20 @@
       
       <v-divider></v-divider>
       <v-container>
-        <h2>Status</h2>
-        <v-text-field
-          v-model="currentSettings.id"
-          label="Settings ID"
-          placeholder=" "
-          readonly
-          disabled
-          :outlined=false
-        ></v-text-field>
+        <h3>Status</h3>
+        <p>Settings ID: {{currentSettings.id}}</p>
         <v-textarea
           readonly
-          :outlined=true
-          label="Messages"
+          label="Latest Measurement"
+          placeholder=" "
+          v-model="latestMeasurement"
+          no-resize
+          rows=1
+        >
+        </v-textarea>
+        <v-textarea
+          readonly
+          label="Latest Messages"
           placeholder=" "
           v-model="messageText"
         >
@@ -58,7 +59,7 @@
       
       <v-divider></v-divider>
       <v-container>
-        <h2>Data</h2>
+        <h3>Data</h3>
         <lineChart :chartData="chartData"/>
       </v-container>
     </v-content>
@@ -132,6 +133,7 @@
       settingsChanged: false,
 
       messageText: "",
+      latestMeasurement: "",
       messages: [],      
       chartData: chartData,
     }),
@@ -184,6 +186,7 @@
         // a label per datapoint is really messy
         const measurementTime = new Date(measurement.time);
         this.addData(measurementTime.toLocaleString(), measurement);
+        this.latestMeasurement = JSON.stringify(measurement);
       })
       ;
 
