@@ -27,7 +27,6 @@ let serverListening = false;
 // get socket.io ready
 const socketIo = require('socket.io')(expressHttpServer);
 
-// Set up the settings api handlers
 let currentSettings = dataDefinitions.defaultSettings;
 
 // get our connection to redis all set up. Will connect to 127.0.0.1:6379 by default
@@ -71,7 +70,7 @@ const redis = new Redis({lazyConnect: true})
   addRuntimeServerMessage(logMessage);
 });
 
-
+// Set up the settings api handlers
 expressApp.get('/settings', (req, res) => {
   res.send(currentSettings);
 });
