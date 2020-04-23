@@ -1,23 +1,33 @@
 import * as VueChartJs from 'vue-chartjs'
 
 const chartOptions = {
+  fill: false,
   scales: {
-    yAxes: [{
-        ticks: {
-            beginAtZero: true
-        },
-        gridLines: {
-            display: true
-        }
-    }],
     xAxes: [{
+        type: 'time',
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Time'
+        },
+        distribution: 'linear',
         ticks: {
-            beginAtZero: true
+            autoSkip: true,
+            beginAtZero: true,
+            maxTicksLimit: 8
         },
         gridLines: {
             display: false
         }
-    }]
+    }],
+    yAxes: [{
+      ticks: {
+          beginAtZero: true
+      },
+      gridLines: {
+          display: true
+      }
+  }]
   },
   legend: {
       display: true
@@ -41,19 +51,5 @@ export default {
   mixins: [VueChartJs.mixins.reactiveProp],
   mounted() {
     this.renderChart(this.chartData, chartOptions);
-
-    /*
-    // Overwriting base render method with actual data.
-    this.renderChart({
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      datasets: [
-        {
-          label: 'GitHub Commits',
-          backgroundColor: '#f87979',
-          data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
-        }
-      ]
-    })
-    */
   }
 }

@@ -82,7 +82,6 @@
   // Set up what measurements we want to add to the chart.
   // Can pick colors from https://vuetifyjs.com/en/styles/colors/ to match the material design color palette  
   const chartData = {
-    labels: [],
     datasets: [
       {
         label: 'Response Time',
@@ -210,12 +209,17 @@
       // See https://michaelnthiessen.com/this-is-undefined/ for a good explanation
       
       addData: function(label, measurement:dataDefinitions.measurement) {
-        this.chartData.labels.push(label);
+        //this.chartData.labels.push(label);
 
         for (const measurementName in measurement) {
           const chartDataIdx = this.chartData.measurementToDatasetIndex[measurementName];
           if (chartDataIdx !== undefined) {
-            this.chartData.datasets[chartDataIdx].data.push(measurement[measurementName]);  
+            this.chartData.datasets[chartDataIdx].data.push(
+                {
+                  x: new Date(measurement.time),
+                  y: measurement[measurementName]
+                }              
+              );  
           }
         }
 
