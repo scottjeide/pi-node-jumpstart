@@ -209,8 +209,6 @@
       // See https://michaelnthiessen.com/this-is-undefined/ for a good explanation
       
       addData: function(label, measurement:dataDefinitions.measurement) {
-        //this.chartData.labels.push(label);
-
         for (const measurementName in measurement) {
           const chartDataIdx = this.chartData.measurementToDatasetIndex[measurementName];
           if (chartDataIdx !== undefined) {

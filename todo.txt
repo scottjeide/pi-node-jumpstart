@@ -16,7 +16,7 @@ My basic backlog
 - clean up typescript warnings/suggestions
 
 
-- Update the readme, add the appropriate tags, make sure the repo is public (can't remember if I made it that way).
+- Update the readme, add the appropriate tags
 - document the 3 pieces and wha they do: client (the pi doing stuff),  server (routing messages around and logging things to the db),  and UI (controlling things and displaying status)
 - Document how to build/debug various components (include debug configs in vscode dot file somehow?)
 - blog it!
