@@ -1,7 +1,5 @@
 My basic backlog
 
-- UI cleanup
-  - my own logos/icon
 
 - When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId. 
     - Might make more sense to just create a new ID for every settings change. I think that's the way it's actually working right now. 
