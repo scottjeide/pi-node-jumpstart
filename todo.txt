@@ -1,7 +1,6 @@
 My basic backlog
 
 - UI cleanup
-  - clean up the time series data lables on x-axis points. Unreadable when there are a bunch. Maybe make the graph do it automatically
   - my own logos/icon
 
 - When the controls are turned on, create a new runId and save off the settings/controls that were used for that runId. 
