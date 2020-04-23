@@ -1,7 +1,5 @@
 My basic backlog
 
-- Add measurements for wifi strength, cpu temp maybe
-
 - UI cleanup
   - clean up UI around the messages
   - dynamically add the data labels based on the data definitions
