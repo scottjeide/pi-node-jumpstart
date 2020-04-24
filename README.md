@@ -28,6 +28,10 @@ To add support for any new controls or measurements:
 * Update the function _handleSettings_ in _client/src/index.ts_ to handle any new settings and start collecting any new measurements.
 * Update the UI to show/edit any additional settings in the < form > at the top of _ui/src/app.vue_
 * Update the UI to graph any new measurements by adding them to the _chartData_ const
+* Install typescript
+  ```bash
+  npm install -g typescript
+  ```
 * Rebuild the three projects
   ```bash
   pushd server && tsc && popd
