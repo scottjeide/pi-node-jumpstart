@@ -34,9 +34,9 @@ To add support for any new controls or measurements:
   ```
 * Rebuild the three projects
   ```bash
-  pushd server && tsc && popd
-  pushd client && tsc && popd
-  pushd ui && npm run build && popd
+  pushd server && npm install && tsc && popd
+  pushd client && npm install && tsc && popd
+  pushd ui && npm install && npm run build && popd
   ```
 * Start redis if not already running
   ```bash
