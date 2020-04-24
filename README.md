@@ -30,7 +30,7 @@ To add support for any new controls or measurements:
 * Update the UI to graph any new measurements by adding them to the _chartData_ const
 * Install typescript
   ```bash
-  npm install -g typescript
+  sudo npm install -g typescript
   ```
 * Rebuild the three projects
   ```bash
