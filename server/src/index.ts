@@ -15,7 +15,7 @@ const expressApp = express()
   .use(json())
   .use(cors())
   .use(morgan('tiny'))  // the express logging middleware
-  .use(express.static('www'))
+  .use(express.static('../ui/dist')) // serve the dist/build version of the UI
   .use((req, res, next) => {
     res.header("Content-Type",'application/json');
     next();
@@ -65,7 +65,7 @@ const redis = new Redis({lazyConnect: true})
   console.log('Redis error', err);
 })
 .on('reconnecting', (ms) => {
-  const logMessage = `Reconnecting to redis in ${ms} ms`;
+  const logMessage = `Reconnecting to redis in ${ms} ms. Make sure redis-server is running`;
   console.log(logMessage);
   addRuntimeServerMessage(logMessage);
 });
