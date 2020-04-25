@@ -76,7 +76,7 @@
   import lineChart from './components/lineChart';
   import _ from 'lodash';
 
-  const serverRootUrl = `http://localhost:3001`;
+  const serverRootUrl = `http://${window.location.hostname}:3001`;
   
   
   // Set up what measurements we want to add to the chart.
