@@ -28,6 +28,15 @@
       "preLaunchTask": "tsc: build - client/tsconfig.json",
       "outFiles": ["${workspaceFolder}/client/build/**/*.js"],
       "cwd": "${workspaceFolder}/client"
-    }
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach Remote Client",
+      "address": "localhost",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}/client",
+      "remoteRoot": "/home/pi/pi-node-jumpstart/client"
+    }    
   ]
 }
