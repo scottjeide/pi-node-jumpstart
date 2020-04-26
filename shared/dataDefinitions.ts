@@ -59,6 +59,7 @@ interface measurement {
   responseTime?: number;
   batteryLevel?: number;
   wifiStrength?: number;
+  cpuTemp?: number;
 
   // UTC timestamp of the measurement (assigned by server)
   time?: number;

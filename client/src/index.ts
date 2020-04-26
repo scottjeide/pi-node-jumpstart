@@ -123,16 +123,15 @@ function handleSettings(newSettings: dataDefinitions.settings) {
   }
 
   const doMeasurements = async () => {
-    try {
-      
-      
+    try {            
       // Fire off each of these async measurements into separate promises so we can kick them off in 
       // parallel and then await for all to complete rather than awaiting for each in sequence
-      const [responseTime, wifiInfo, batteryInfo] = await Promise.all(
+      const [responseTime, wifiInfo, batteryInfo, cpuTemperature] = await Promise.all(
         [
           checkUrlResponseTime(currentSettings.checkUrl),
           systemInfo.wifiNetworks(),
-          systemInfo.battery()
+          systemInfo.battery(),
+          systemInfo.cpuTemperature(),
         ]
       );
 
@@ -144,6 +143,9 @@ function handleSettings(newSettings: dataDefinitions.settings) {
       }
       if (batteryInfo.hasbattery) {
         measurement.batteryLevel = batteryInfo.percent;
+      }
+      if (cpuTemperature.main != -1) {
+        measurement.cpuTemp = cpuTemperature.main;
       }
       sendMeasurement(measurement);  
     }        

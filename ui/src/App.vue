@@ -103,14 +103,21 @@
         borderColor:  '#FFC107',
         data: [],
         fill: false,
-      }
+      },
+      {
+        label: 'CPU Temp',
+        backgroundColor: '#4CAF50',
+        borderColor: '#4CAF50',
+        fill: false,
+      },
     ],
 
     // The maps a measurement name to the appropriate dataset index above
     measurementToDatasetIndex: {
       responseTime: 0,
       batteryLevel: 1,  
-      wifiStrength: 2
+      wifiStrength: 2,
+      cpuTemp: 3,
     }
   };
 
