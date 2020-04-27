@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 import io = require('socket.io-client');
 import * as dataDefinitions from '../../shared/dataDefinitions';
 import _ = require('lodash');
+import rpio = require('rpio');
 
 // Check out https://www.npmjs.com/package/systeminformation for lots of handy we can measure & log about the system we're running on
 import systemInfo = require('systeminformation');
@@ -21,6 +22,11 @@ console.log(`Connecting to: ${serverRootUrl}`);
 
 
 let currentSettings = dataDefinitions.defaultSettings;
+
+// open any pins we are going to use & set the default state. The rpio library refers to them
+// by actual pin number, not GPIO#. See https://elinux.org/RPi_Low-level_peripherals for details
+const GPIO4 = 7;
+rpio.open(GPIO4, rpio.OUTPUT, rpio.LOW);
 
 // Get connected to the server
 const socket = io(serverRootUrl)
@@ -163,6 +169,8 @@ function handleSettings(newSettings: dataDefinitions.settings) {
   else {
     console.log('Settings off, not running checks');
   }
+
+  rpio.write(GPIO4, currentSettings.gpio4On ? rpio.HIGH : rpio.LOW);
 }
 
 /**

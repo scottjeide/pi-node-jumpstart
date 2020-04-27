@@ -31,6 +31,12 @@
             dense
           ></v-text-field>
 
+          <v-switch
+            v-model="currentSettings.gpio4On"
+            :label="`GPIO4: ${currentSettings.gpio4On ? 'On' : 'Off'}`"
+          >
+          </v-switch>
+
           <v-btn class="my-2" depressed color="primary" :disabled="!settingsChanged" @click="saveSettings()">Apply</v-btn>
         </v-form>
       </v-container>

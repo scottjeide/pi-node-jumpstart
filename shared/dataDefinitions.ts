@@ -26,6 +26,9 @@ interface settings {
 
   // The url we'll check every interval
   checkUrl: string,
+
+  // GPIO4 pin on/off
+  gpio4On: boolean,
 }
 
 /**
@@ -38,6 +41,7 @@ const defaultSettings: settings = {
   on: false,
   checkInterval: 10,
   checkUrl: 'https://www.google.com',
+  gpio4On: false,
 }
 
 
