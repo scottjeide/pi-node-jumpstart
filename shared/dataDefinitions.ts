@@ -26,6 +26,9 @@ interface settings {
 
   // The url we'll check every interval
   checkUrl: string,
+
+  // GPIO22 pin on/off
+  gpio22On: boolean,
 }
 
 /**
@@ -38,6 +41,7 @@ const defaultSettings: settings = {
   on: false,
   checkInterval: 10,
   checkUrl: 'https://www.google.com',
+  gpio22On: false,
 }
 
 
