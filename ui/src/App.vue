@@ -32,8 +32,8 @@
           ></v-text-field>
 
           <v-switch
-            v-model="currentSettings.gpio4On"
-            :label="`GPIO4: ${currentSettings.gpio4On ? 'On' : 'Off'}`"
+            v-model="currentSettings.gpio22On"
+            :label="`GPIO22: ${currentSettings.gpio22On ? 'On' : 'Off'}`"
           >
           </v-switch>
 

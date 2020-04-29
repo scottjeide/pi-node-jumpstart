@@ -25,8 +25,8 @@ let currentSettings = dataDefinitions.defaultSettings;
 
 // open any pins we are going to use & set the default state. The rpio library refers to them
 // by actual pin number, not GPIO#. See https://elinux.org/RPi_Low-level_peripherals for details
-const GPIO4 = 7;
-rpio.open(GPIO4, rpio.OUTPUT, rpio.LOW);
+const GPIO22 = 15;
+rpio.open(GPIO22, rpio.OUTPUT, rpio.LOW);
 
 // Get connected to the server
 const socket = io(serverRootUrl)
@@ -170,7 +170,7 @@ function handleSettings(newSettings: dataDefinitions.settings) {
     console.log('Settings off, not running checks');
   }
 
-  rpio.write(GPIO4, currentSettings.gpio4On ? rpio.HIGH : rpio.LOW);
+  rpio.write(GPIO22, currentSettings.gpio22On ? rpio.HIGH : rpio.LOW);
 }
 
 /**
