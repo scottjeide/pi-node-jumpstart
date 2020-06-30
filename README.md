@@ -1,7 +1,7 @@
 # pi-node-jumpstart
 pi-node-jumpstart is a simple node js client/server app for monitoring and controlling raspberry pi projects in realtime.
 
-It seems like every time I have an idea for a fun pi controller project, I spent more time messing with the app code than actually doing something useful on the pi. The goal of this project is to have a base working UI, server, client, and DB that I can just quickly fork and get to work.
+It seems like every time I have an idea for a fun pi controller project, I spend more time messing with the app code than actually doing something useful on the pi. The goal of this project is to have a base working UI, server, client, and DB that I can just quickly fork and get to work.
 
 This project supports realtime monitoring, measurement charting, control, and DB persistance for saving any collected data.
 
