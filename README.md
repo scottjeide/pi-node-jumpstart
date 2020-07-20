@@ -1,7 +1,7 @@
 # pi-node-jumpstart
 pi-node-jumpstart is a simple node js client/server app for monitoring and controlling raspberry pi projects in realtime.
 
-It seems like every time I have an idea for a fun pi controller project, I spent more time messing with the app code than actually doing something useful on the pi. The goal of this project is to have a base working UI, server, client, and DB that I can just quickly fork and get to work.
+It seems like every time I have an idea for a fun pi controller project, I spend more time messing with the app code than actually doing something useful on the pi. The goal of this project is to have a base working UI, server, client, and DB that I can just quickly fork and get to work.
 
 This project supports realtime monitoring, measurement charting, control, and DB persistance for saving any collected data.
 
@@ -22,12 +22,7 @@ The UI uses vuejs and chartjs to control and monitor the system.
 
 ![Chart UI](/docs/images/chart.png)
 
-# Developer Guide
-To add support for any new controls or measurements:
-* update the _measurement_ or _settings_ interfaces in _shared/dataDefinitions.ts. This will make the new measurements and settings available to all the projects.
-* Update the function _handleSettings_ in _client/src/index.ts_ to handle any new settings and start collecting any new measurements.
-* Update the UI to show/edit any additional settings in the < form > at the top of _ui/src/app.vue_
-* Update the UI to graph any new measurements by adding them to the _chartData_ const
+# Using
 * Install typescript
   ```bash
   sudo npm install -g typescript
@@ -49,7 +44,9 @@ To add support for any new controls or measurements:
   ```
 * Start the client
   ```bash
-  # to start the client
   cd client
   node build/client/src/index.js
   ```
+
+For more information and tutorials for adding new measurements and controls, see the [wiki](https://github.com/scottjeide/pi-node-jumpstart/wiki)
+ 
