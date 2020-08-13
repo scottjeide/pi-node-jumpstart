@@ -28,7 +28,7 @@
     "@types/ioredis": "^4.14.9",
     "@types/morgan": "^1.9.0",
     "@types/socket.io": "^2.1.4",
-    "nodemon": "^1.19.4",
+    "nodemon": "^2.0.4",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3"
   }
